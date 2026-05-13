@@ -18,8 +18,8 @@ class TestOpenDataProduct:
         """Test OpenDataProduct initialization with ProductDetails."""
         product = OpenDataProduct(sample_product_details)
         assert product.product_details == sample_product_details
-        assert product.schema == "https://opendataproducts.org/v4.0/schema/odps.json"
-        assert product.version == "4.0"
+        assert product.schema == "https://opendataproducts.org/v4.1/schema/odps.json"
+        assert product.version == "4.1"
 
     def test_init_with_dict(self, minimal_valid_odps_data):
         """Test OpenDataProduct initialization with dictionary data."""
@@ -32,8 +32,8 @@ class TestOpenDataProduct:
         """Test converting OpenDataProduct to dictionary."""
         data = sample_odps_product.to_dict()
         assert isinstance(data, dict)
-        assert data["schema"] == "https://opendataproducts.org/v4.0/schema/odps.json"
-        assert data["version"] == "4.0"
+        assert data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
+        assert data["version"] == "4.1"
         assert "product" in data
         assert data["product"]["name"] == "Test Product"
 
@@ -44,7 +44,7 @@ class TestOpenDataProduct:
         
         # Verify it's valid JSON
         data = json.loads(json_str)
-        assert data["schema"] == "https://opendataproducts.org/v4.0/schema/odps.json"
+        assert data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
         assert data["product"]["name"] == "Test Product"
 
     def test_to_json_pretty(self, sample_odps_product):
@@ -64,7 +64,7 @@ class TestOpenDataProduct:
         
         # Verify it's valid YAML
         data = yaml.safe_load(yaml_str)
-        assert data["schema"] == "https://opendataproducts.org/v4.0/schema/odps.json"
+        assert data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
         assert data["product"]["name"] == "Test Product"
 
     def test_from_json(self, minimal_valid_odps_data):

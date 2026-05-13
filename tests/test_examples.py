@@ -197,8 +197,8 @@ class TestExampleUsage:
         
         # Should serialize to valid JSON
         json_data = json.loads(product.to_json())
-        assert json_data["schema"] == "https://opendataproducts.org/v4.0/schema/odps.json"
-        assert json_data["version"] == "4.0"
+        assert json_data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
+        assert json_data["version"] == "4.1"
 
     def test_product_with_use_cases(self):
         """Test product with use cases."""

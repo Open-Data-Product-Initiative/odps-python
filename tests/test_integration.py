@@ -27,8 +27,8 @@ class TestIntegration:
         # Basic assertions
         assert product.product_details.name == "Test Dataset"
         assert product.product_details.product_id == "test-001"
-        assert product.schema == "https://opendataproducts.org/v4.0/schema/odps.json"
-        assert product.version == "4.0"
+        assert product.schema == "https://opendataproducts.org/v4.1/schema/odps.json"
+        assert product.version == "4.1"
 
     def test_product_with_use_case(self):
         """Test product with use cases."""
