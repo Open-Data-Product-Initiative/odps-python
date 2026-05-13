@@ -3,19 +3,30 @@ requires = ["setuptools>=45", "wheel", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "odps-python"
+name = "open-data-products"
 dynamic = ["version"]
-description = "High-performance Python library for Open Data Product Specification (ODPS) v4.1 with ProductStrategy, AI integration, caching, validation, and international standards compliance"
+description = "Python SDK for the OpenDataProducts.org standards family, including ODPS data products and future ODPV, ODPC, and ODPG support"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
     {name = "Chris Howard", email = "chris.howard@accenture.com"}
 ]
 keywords = [
-    "open-data", "data-product", "specification", "odps", 
-    "iso-standards", "validation", "rfc", "e164", 
-    "iso639", "iso3166", "iso4217", "iso8601",
-    "performance", "caching", "protocols", "type-safety"
+    "open-data",
+    "data-product",
+    "open-data-products",
+    "odps",
+    "odpv",
+    "odpc",
+    "odpg",
+    "specification",
+    "validation",
+    "vocabulary",
+    "catalog",
+    "graph",
+    "iso-standards",
+    "rfc",
+    "type-safety",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -65,10 +76,14 @@ Repository = "https://github.com/accenture/odps-python"
 "Bug Tracker" = "https://github.com/accenture/odps-python/issues"
 
 [tool.setuptools]
-packages = ["odps"]
+packages = [
+    "open_data_products",
+    "open_data_products.odps",
+    "odps",
+]
 
 [tool.setuptools.dynamic]
-version = {attr = "odps.__version__"}
+version = {attr = "open_data_products.__version__"}
 
 [tool.black]
 line-length = 88
@@ -98,7 +113,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["odps"]
+source = ["open_data_products", "odps"]
 branch = true
 omit = [
     "*/tests/*",
