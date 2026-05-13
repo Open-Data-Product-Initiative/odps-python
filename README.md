@@ -1,4 +1,4 @@
-# ODPS Python Library
+# Open Data Products Python SDK
 
 [![PyPI version](https://badge.fury.io/py/odps-python.svg)](https://badge.fury.io/py/odps-python)
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/accenture/odps-python)
@@ -44,22 +44,24 @@ A comprehensive, high-performance Python library for creating, validating, and m
 ## Installation
 
 ```bash
-pip install odps-python
+pip install open-data-products
 
 # For full standards validation support:
-pip install "odps-python[validation]"
+pip install "open-data-products[validation]"
 
 # For development:
-pip install "odps-python[dev]"
+pip install "open-data-products[dev]"
 ```
+
+Existing ODPS users can continue importing from `odps` during the compatibility period. New code should prefer `open_data_products.odps` because the SDK is expanding to support the broader OpenDataProducts.org standards family.
 
 ## Quick Start
 
 ### Basic Usage (v4.1)
 
 ```python
-from odps import OpenDataProduct
-from odps.models import (
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import (
     ProductDetails,
     ProductStrategy,
     KPI,

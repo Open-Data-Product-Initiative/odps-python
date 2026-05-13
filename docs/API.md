@@ -1,5 +1,21 @@
 # ODPS Python Library API Reference
 
+## Package Namespace
+
+New code should import ODPS APIs from `open_data_products.odps`:
+
+```python
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import ProductDetails
+```
+
+The historical `odps` namespace remains available for backward compatibility:
+
+```python
+from odps import OpenDataProduct
+from odps.models import ProductDetails
+```
+
 ## Table of Contents
 
 1. [Core Classes](#core-classes)
