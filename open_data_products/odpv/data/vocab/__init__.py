@@ -1,0 +1,1 @@
+"""Bundled ODPV vocabulary artifacts."""

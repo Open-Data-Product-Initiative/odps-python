@@ -1,0 +1,550 @@
+schema: https://opendataproducts.org/odpv-v1.0/schema/odpv.schema.json
+version: 1.0.0
+id: ODPV
+name:
+  en: Open Data Product Vocabulary
+description:
+  en: Shared vocabulary for the OpenDataProducts.org standards family.
+license:
+  name: Apache 2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0
+publisher:
+  name: Open Data Product Initiative
+  umbrella: Linux Foundation
+  url: https://opendataproducts.org
+sections:
+- id: relationships
+  name:
+    en: ODPV Relationships
+  description:
+    en: Terms used to connect data products, catalogs, use cases, objectives, KPIs, signals, governance objects, and related portfolio items.
+  terms:
+  - id: supports
+    uri: https://opendataproducts.org/odpv-v1.0/terms/supports
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: supports
+    definition:
+      en: Indicates that one object helps enable, serve, or make another object possible, such as a data product supporting a use case.
+    alsoKnownAs:
+      en:
+      - enables
+      - serves
+      - helps
+      - provides support for
+    relatedTerms:
+    - contributesTo
+    - requires
+    - relatedTo
+    domain:
+    - DataProduct
+    - DataProductCatalog
+    - UseCase
+    range:
+    - UseCase
+    - BusinessObjective
+    - Outcome
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - Customer Churn Risk Scores supports the Retention Campaign Optimization use case.
+      - Use supports when one object helps enable, serve, or make another object possible.
+  - id: requires
+    uri: https://opendataproducts.org/odpv-v1.0/terms/requires
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: requires
+    definition:
+      en: Indicates that one object needs another object to be complete, useful, or executable, such as a use case requiring a data product.
+    alsoKnownAs:
+      en:
+      - needs
+      - depends on
+      - must have
+      - requires input from
+    relatedTerms:
+    - dependsOn
+    - supports
+    - DataNeed
+    domain:
+    - UseCase
+    - DataProduct
+    - BusinessObjective
+    range:
+    - DataProduct
+    - Dataset
+    - DataNeed
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Fraud Detection use case requires the Transaction Events DataProduct.
+      - Use requires when one object needs another object to be complete, useful, or executable.
+  - id: contributesTo
+    uri: https://opendataproducts.org/odpv-v1.0/terms/contributesTo
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: contributes to
+    definition:
+      en: Indicates that one object helps advance another object, such as a use case contributing to a business objective.
+    alsoKnownAs:
+      en:
+      - advances
+      - helps achieve
+      - adds value to
+      - supports progress toward
+    relatedTerms:
+    - supports
+    - measures
+    - BusinessObjective
+    domain:
+    - DataProduct
+    - UseCase
+    - KPI
+    range:
+    - BusinessObjective
+    - Outcome
+    - Impact
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Retention Campaign Optimization use case contributesTo the Reduce Churn business objective.
+      - Use contributesTo when one object helps advance an objective, outcome, or impact.
+  - id: measures
+    uri: https://opendataproducts.org/odpv-v1.0/terms/measures
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: measures
+    definition:
+      en: Indicates that one object measures another object, such as a KPI measuring a business objective or outcome.
+    alsoKnownAs:
+      en:
+      - tracks
+      - monitors
+      - evaluates
+      - assesses
+    relatedTerms:
+    - KPI
+    - Outcome
+    - BusinessObjective
+    domain:
+    - KPI
+    - Signal
+    range:
+    - BusinessObjective
+    - Outcome
+    - Impact
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - Monthly churn rate measures the Reduce Churn business objective.
+      - Use measures when a KPI, signal, or metric tracks an objective, outcome, or impact.
+  - id: belongsTo
+    uri: https://opendataproducts.org/odpv-v1.0/terms/belongsTo
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: belongs to
+    definition:
+      en: Indicates that one object is assigned to, grouped under, or included in another object, such as a data product belonging to a catalog.
+    alsoKnownAs:
+      en:
+      - assigned to
+      - grouped under
+      - included in
+      - cataloged under
+    relatedTerms:
+    - partOf
+    - hasPart
+    - DataProductCatalog
+    domain:
+    - DataProduct
+    - UseCase
+    - BusinessObjective
+    range:
+    - DataProductCatalog
+    - Domain
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Customer Churn Risk Scores DataProduct belongsTo the Customer Analytics catalog.
+      - Use belongsTo when one object is assigned to, grouped under, or included in another object.
+  - id: dependsOn
+    uri: https://opendataproducts.org/odpv-v1.0/terms/dependsOn
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: depends on
+    definition:
+      en: Indicates that one object has a dependency on another object, such as a data product depending on another product, service, or dataset.
+    alsoKnownAs:
+      en:
+      - relies on
+      - has dependency on
+      - uses dependency
+      - is dependent on
+    relatedTerms:
+    - requires
+    - relatedTo
+    - derivedFrom
+    domain:
+    - DataProduct
+    - DataService
+    - UseCase
+    range:
+    - DataProduct
+    - Dataset
+    - DataService
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Churn Scores DataProduct dependsOn the Customer Profile Dataset.
+      - Use dependsOn for operational, technical, or data dependencies between products, services, datasets, or use cases.
+  - id: governedBy
+    uri: https://opendataproducts.org/odpv-v1.0/terms/governedBy
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: governed by
+    definition:
+      en: Indicates that one object is governed by another object, such as a data product governed by a license, policy, agreement, or compliance rule.
+    alsoKnownAs:
+      en:
+      - controlled by
+      - regulated by
+      - subject to
+      - under governance of
+    relatedTerms:
+    - Policy
+    - License
+    - Agreement
+    - ComplianceRule
+    domain:
+    - DataProduct
+    - Dataset
+    - AccessMethod
+    range:
+    - Policy
+    - License
+    - Agreement
+    - ComplianceRule
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Customer Profile DataProduct is governedBy the Customer Data Access Policy.
+      - Use governedBy when a product, dataset, service, or access method is subject to a policy, license, agreement, or compliance rule.
+  - id: providedBy
+    uri: https://opendataproducts.org/odpv-v1.0/terms/providedBy
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: provided by
+    definition:
+      en: Indicates that one object is provided, published, or made available by a provider.
+    alsoKnownAs:
+      en:
+      - published by
+      - supplied by
+      - made available by
+      - offered by
+    relatedTerms:
+    - Provider
+    - Owner
+    - Steward
+    domain:
+    - DataProduct
+    - Dataset
+    - DataService
+    range:
+    - Provider
+    - Owner
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Transaction Events DataProduct is providedBy the Payments Data Platform team.
+      - Use providedBy when an object is published, supplied, or made available by a provider or owner.
+  - id: consumedBy
+    uri: https://opendataproducts.org/odpv-v1.0/terms/consumedBy
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: consumed by
+    definition:
+      en: Indicates that one object is used, accessed, or consumed by a consumer.
+    alsoKnownAs:
+      en:
+      - used by
+      - accessed by
+      - received by
+      - consumed by
+    relatedTerms:
+    - Consumer
+    - AccessMethod
+    - UsageRights
+    domain:
+    - DataProduct
+    - Dataset
+    - DataService
+    range:
+    - Consumer
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Customer Features DataProduct is consumedBy the Personalization Model Training system.
+      - Use consumedBy when an object is used, accessed, or received by a consumer.
+  - id: indicates
+    uri: https://opendataproducts.org/odpv-v1.0/terms/indicates
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: indicates
+    definition:
+      en: Indicates that one object points to, reveals, or suggests another object, such as a signal indicating a gap, demand, risk, or opportunity.
+    alsoKnownAs:
+      en:
+      - points to
+      - suggests
+      - reveals
+      - signals
+    relatedTerms:
+    - Signal
+    - Gap
+    - Demand
+    - Risk
+    - Opportunity
+    domain:
+    - Signal
+    - KPI
+    range:
+    - Gap
+    - Demand
+    - Risk
+    - Opportunity
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - A rising support ticket trend indicates a Gap in product usage data.
+      - Use indicates when a signal, KPI, or observation points to a gap, demand, risk, or opportunity.
+  - id: relatedTo
+    uri: https://opendataproducts.org/odpv-v1.0/terms/relatedTo
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: related to
+    definition:
+      en: Indicates a general relationship between two objects when a more specific relationship type is not available.
+    alsoKnownAs:
+      en:
+      - associated with
+      - connected to
+      - linked to
+      - relevant to
+    relatedTerms:
+    - supports
+    - dependsOn
+    - partOf
+    domain:
+    - DataProduct
+    - UseCase
+    - BusinessObjective
+    - GovernanceProfile
+    range:
+    - DataProduct
+    - UseCase
+    - BusinessObjective
+    - GovernanceProfile
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Customer Profile DataProduct is relatedTo the Customer Segmentation UseCase.
+      - Use relatedTo only when a more specific relationship type is not available.
+  - id: partOf
+    uri: https://opendataproducts.org/odpv-v1.0/terms/partOf
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: part of
+    definition:
+      en: Indicates that one object is part of a larger object, such as a catalog item being part of a catalog.
+    alsoKnownAs:
+      en:
+      - component of
+      - included in
+      - member of
+      - belongs within
+    relatedTerms:
+    - hasPart
+    - belongsTo
+    - DataProductCatalog
+    domain:
+    - DataProduct
+    - Dataset
+    - Distribution
+    range:
+    - DataProductCatalog
+    - DataProduct
+    - Dataset
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - A customer address Dataset is partOf the Customer Profile DataProduct.
+      - Use partOf when one object is a component or member of a larger object.
+  - id: hasPart
+    uri: https://opendataproducts.org/odpv-v1.0/terms/hasPart
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: has part
+    definition:
+      en: Indicates that one object contains or includes another object.
+    alsoKnownAs:
+      en:
+      - contains
+      - includes
+      - has component
+      - consists of
+    relatedTerms:
+    - partOf
+    - belongsTo
+    - Dataset
+    domain:
+    - DataProductCatalog
+    - DataProduct
+    - Dataset
+    range:
+    - DataProduct
+    - Dataset
+    - Distribution
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Customer Profile DataProduct hasPart the Customer Address Dataset.
+      - Use hasPart when one object contains or includes another object.
+  - id: derivedFrom
+    uri: https://opendataproducts.org/odpv-v1.0/terms/derivedFrom
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: derived from
+    definition:
+      en: Indicates that one object is derived from another object, such as an insight, product, dataset, or signal derived from a source.
+    alsoKnownAs:
+      en:
+      - based on
+      - sourced from
+      - generated from
+      - created from
+    relatedTerms:
+    - dependsOn
+    - Reference
+    - Dataset
+    domain:
+    - DataProduct
+    - Dataset
+    - Signal
+    range:
+    - Dataset
+    - DataProduct
+    - Reference
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - The Churn Score Dataset is derivedFrom customer events and subscription history datasets.
+      - Use derivedFrom when an object is based on, sourced from, generated from, or created from another object.
+  - id: replaces
+    uri: https://opendataproducts.org/odpv-v1.0/terms/replaces
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: replaces
+    definition:
+      en: Indicates that one object replaces another object, such as a newer data product replacing an older version.
+    alsoKnownAs:
+      en:
+      - supersedes
+      - succeeds
+      - takes over from
+      - replaces version
+    relatedTerms:
+    - versionOf
+    - derivedFrom
+    - relatedTo
+    domain:
+    - DataProduct
+    - Dataset
+    - DataService
+    range:
+    - DataProduct
+    - Dataset
+    - DataService
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - Customer Churn Scores v2 replaces the legacy churn scoring product.
+      - Use replaces when a newer product, dataset, service, or version supersedes an older one.
+  - id: versionOf
+    uri: https://opendataproducts.org/odpv-v1.0/terms/versionOf
+    type: relationship
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: version of
+    definition:
+      en: Indicates that one object is a version of another object.
+    alsoKnownAs:
+      en:
+      - variant of
+      - release of
+      - revision of
+      - versioned form of
+    relatedTerms:
+    - replaces
+    - derivedFrom
+    - Identifier
+    domain:
+    - DataProduct
+    - Dataset
+    - DataService
+    range:
+    - DataProduct
+    - Dataset
+    - DataService
+    usedIn:
+    - ODPG
+    examples:
+      en:
+      - Customer Churn Scores v2 is a versionOf Customer Churn Scores.
+      - Use versionOf when one object is a version, variant, release, or revision of another object.

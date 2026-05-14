@@ -1,0 +1,432 @@
+schema: https://opendataproducts.org/odpv-v1.0/schema/odpv.schema.json
+version: 1.0.0
+id: ODPV
+name:
+  en: Open Data Product Vocabulary
+description:
+  en: Shared vocabulary for the OpenDataProducts.org standards family.
+license:
+  name: Apache 2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0
+publisher:
+  name: Open Data Product Initiative
+  umbrella: Linux Foundation
+  url: https://opendataproducts.org
+sections:
+- id: governance
+  name:
+    en: ODPV Governance
+  description:
+    en: Terms used to describe how data products are controlled, protected, accessed, licensed, and operated.
+  terms:
+  - id: DataQuality
+    uri: https://opendataproducts.org/odpv-v1.0/terms/DataQuality
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Data Quality
+    definition:
+      en: The expected, measured, or reported quality of a data product, dataset, distribution, or data service.
+    alsoKnownAs:
+      en:
+      - quality
+      - data quality score
+      - quality assessment
+      - quality metrics
+    relatedTerms:
+    - SLA
+    - DataContract
+    - Stewardship
+    - ComplianceRule
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Completeness above 98 percent is a DataQuality expectation for the Customer Profile DataProduct.
+      - Use DataQuality for expected, measured, or reported quality of a product, dataset, distribution, or service.
+  - id: SLA
+    uri: https://opendataproducts.org/odpv-v1.0/terms/SLA
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: SLA
+    definition:
+      en: A service-level agreement or expectation that defines operational commitments for a data product, distribution, or data service.
+    alsoKnownAs:
+      en:
+      - service level agreement
+      - service commitment
+      - operational commitment
+      - service expectation
+    relatedTerms:
+    - DataQuality
+    - Agreement
+    - AccessMethod
+    - DataContract
+    usedIn:
+    - ODPS
+    - ODPG
+    examples:
+      en:
+      - The product refreshes by 08:00 UTC every business day is an SLA.
+      - Use SLA for service-level expectations or operational commitments.
+  - id: License
+    uri: https://opendataproducts.org/odpv-v1.0/terms/License
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: License
+    definition:
+      en: The legal terms that define how a data product, dataset, distribution, or data service may be used, shared, or redistributed.
+    alsoKnownAs:
+      en:
+      - data license
+      - usage license
+      - legal license
+      - redistribution terms
+    relatedTerms:
+    - UsageRights
+    - Agreement
+    - DataAgreement
+    - Policy
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Apache 2.0 is a License for a publicly shared dataset.
+      - Use License for legal terms that define how data may be used, shared, or redistributed.
+  - id: AccessMethod
+    uri: https://opendataproducts.org/odpv-v1.0/terms/AccessMethod
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Access Method
+    definition:
+      en: The method used to access a data product, dataset, distribution, or data service, such as API, file download, query endpoint, or platform access.
+    alsoKnownAs:
+      en:
+      - access channel
+      - delivery method
+      - access interface
+      - data access method
+    relatedTerms:
+    - AccessCondition
+    - DataService
+    - Distribution
+    - SLA
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - A Snowflake share is an AccessMethod for the Customer Features DataProduct.
+      - Use AccessMethod for the channel or interface used to access data, such as API, file download, query endpoint, or platform access.
+  - id: Agreement
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Agreement
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Agreement
+    definition:
+      en: A formal or informal agreement that defines usage, commercial, legal, operational, or governance terms for a data product or data exchange.
+    alsoKnownAs:
+      en:
+      - data agreement
+      - usage agreement
+      - service agreement
+      - commercial agreement
+    relatedTerms:
+    - DataAgreement
+    - License
+    - UsageRights
+    - SLA
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - A commercial data sharing contract is an Agreement for an external data exchange.
+      - Use Agreement for usage, commercial, legal, operational, or governance terms between parties.
+  - id: Policy
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Policy
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Policy
+    definition:
+      en: A rule, guideline, or governance statement that applies to a data product, catalog, graph, use case, access method, or related object.
+    alsoKnownAs:
+      en:
+      - governance policy
+      - rule
+      - guideline
+      - control policy
+    relatedTerms:
+    - ComplianceRule
+    - GovernanceProfile
+    - AccessCondition
+    - Sensitivity
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Customer data must not be exported outside approved regions is a Policy.
+      - Use Policy for a rule, guideline, or governance statement that applies to products, catalogs, graphs, use cases, or access.
+  - id: ComplianceRule
+    uri: https://opendataproducts.org/odpv-v1.0/terms/ComplianceRule
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Compliance Rule
+    definition:
+      en: A specific rule or requirement used to assess, enforce, or document compliance.
+    alsoKnownAs:
+      en:
+      - compliance requirement
+      - control rule
+      - regulatory rule
+      - validation rule
+    relatedTerms:
+    - Policy
+    - GovernanceProfile
+    - DataQuality
+    - Risk
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - PII fields must be masked before non-production use is a ComplianceRule.
+      - Use ComplianceRule for a specific requirement used to assess, enforce, or document compliance.
+  - id: Sensitivity
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Sensitivity
+    type: classification
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Sensitivity
+    definition:
+      en: A classification that indicates how sensitive a data product, dataset, attribute, distribution, or service is from a privacy, security, commercial, or operational perspective.
+    alsoKnownAs:
+      en:
+      - sensitivity level
+      - data sensitivity
+      - security classification
+      - privacy classification
+    relatedTerms:
+    - Policy
+    - AccessCondition
+    - UsageRights
+    - GovernanceProfile
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - Confidential is a Sensitivity classification for customer identity data.
+      - Use Sensitivity to indicate privacy, security, commercial, or operational sensitivity.
+  - id: UsageRights
+    uri: https://opendataproducts.org/odpv-v1.0/terms/UsageRights
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Usage Rights
+    definition:
+      en: The rights granted to consumers for using, sharing, modifying, deriving, or redistributing a data product or dataset.
+    alsoKnownAs:
+      en:
+      - use rights
+      - permitted use
+      - usage permissions
+      - allowed use
+    relatedTerms:
+    - License
+    - Agreement
+    - DataAgreement
+    - AccessCondition
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - Internal analytics only is a UsageRights statement for a licensed dataset.
+      - Use UsageRights for what consumers may do with data, including use, sharing, modification, derivation, or redistribution.
+  - id: Retention
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Retention
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Retention
+    definition:
+      en: The rules or expectations for how long data, metadata, logs, agreements, or related records should be retained.
+    alsoKnownAs:
+      en:
+      - retention rule
+      - retention period
+      - record retention
+      - data retention
+    relatedTerms:
+    - Policy
+    - ComplianceRule
+    - DataAgreement
+    - Stewardship
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - Transaction logs retained for seven years is a Retention rule.
+      - Use Retention for how long data, metadata, logs, agreements, or records should be kept.
+  - id: AccessCondition
+    uri: https://opendataproducts.org/odpv-v1.0/terms/AccessCondition
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Access Condition
+    definition:
+      en: A condition that must be met before a consumer can access a data product, dataset, distribution, or data service.
+    alsoKnownAs:
+      en:
+      - access rule
+      - access requirement
+      - eligibility condition
+      - access constraint
+    relatedTerms:
+    - AccessMethod
+    - UsageRights
+    - Policy
+    - Sensitivity
+    usedIn:
+    - ODPS
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Manager approval required before access is granted is an AccessCondition.
+      - Use AccessCondition for a requirement that must be met before a consumer can access data.
+  - id: GovernanceProfile
+    uri: https://opendataproducts.org/odpv-v1.0/terms/GovernanceProfile
+    type: classification
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Governance Profile
+    definition:
+      en: A reusable governance classification that describes the expected level of control, assurance, review, or operational maturity for a data product or catalog item.
+    alsoKnownAs:
+      en:
+      - governance level
+      - assurance profile
+      - control profile
+      - maturity profile
+    relatedTerms:
+    - Policy
+    - ComplianceRule
+    - Sensitivity
+    - Stewardship
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - High assurance is a GovernanceProfile for regulated finance data products.
+      - Use GovernanceProfile for a reusable classification of control, assurance, review, or maturity expectations.
+  - id: DataAgreement
+    uri: https://opendataproducts.org/odpv-v1.0/terms/DataAgreement
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Data Agreement
+    definition:
+      en: A structured agreement that defines the allowed use, responsibilities, obligations, and constraints for a data product or data exchange.
+    alsoKnownAs:
+      en:
+      - data sharing agreement
+      - data usage agreement
+      - data exchange agreement
+      - product agreement
+    relatedTerms:
+    - Agreement
+    - License
+    - UsageRights
+    - AccessCondition
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - A partner data exchange contract with allowed uses and obligations is a DataAgreement.
+      - Use DataAgreement for structured allowed use, responsibilities, obligations, and constraints for data sharing.
+  - id: DataContract
+    uri: https://opendataproducts.org/odpv-v1.0/terms/DataContract
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Data Contract
+    definition:
+      en: A technical or operational contract that defines expectations for schema, quality, delivery, compatibility, and change management.
+    alsoKnownAs:
+      en:
+      - schema contract
+      - delivery contract
+      - operational contract
+      - technical contract
+    relatedTerms:
+    - DataQuality
+    - SLA
+    - AccessMethod
+    - Stewardship
+    usedIn:
+    - ODPS
+    examples:
+      en:
+      - A schema compatibility and freshness contract for an events API is a DataContract.
+      - Use DataContract for technical or operational expectations around schema, quality, delivery, compatibility, and change management.
+  - id: Stewardship
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Stewardship
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Stewardship
+    definition:
+      en: The assigned responsibility model for managing data product metadata, quality, lifecycle, and operational health.
+    alsoKnownAs:
+      en:
+      - data stewardship
+      - product stewardship
+      - metadata stewardship
+      - lifecycle responsibility
+    relatedTerms:
+    - Steward
+    - Owner
+    - DataQuality
+    - GovernanceProfile
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - The analytics platform team handles Stewardship for metadata quality and lifecycle reviews.
+      - Use Stewardship for the assigned responsibility model for metadata, quality, lifecycle, and operational health.

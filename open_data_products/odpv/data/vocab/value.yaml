@@ -1,0 +1,423 @@
+schema: https://opendataproducts.org/odpv-v1.0/schema/odpv.schema.json
+version: 1.0.0
+id: ODPV
+name:
+  en: Open Data Product Vocabulary
+description:
+  en: Shared vocabulary for the OpenDataProducts.org standards family.
+license:
+  name: Apache 2.0
+  url: https://www.apache.org/licenses/LICENSE-2.0
+publisher:
+  name: Open Data Product Initiative
+  umbrella: Linux Foundation
+  url: https://opendataproducts.org
+sections:
+- id: value
+  name:
+    en: ODPV Value
+  description:
+    en: Terms used to describe why data products matter, where they create value, and how that value connects to business outcomes.
+  terms:
+  - id: UseCase
+    uri: https://opendataproducts.org/odpv-v1.0/terms/UseCase
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Use Case
+    definition:
+      en: A practical business, operational, analytical, or technical scenario where one or more data products are used to create value.
+    alsoKnownAs:
+      en:
+      - use case
+      - scenario
+      - business scenario
+      - application case
+    relatedTerms:
+    - DataProduct
+    - BusinessObjective
+    - DataNeed
+    - Outcome
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Fraud detection is a UseCase supported by transaction monitoring data products.
+      - Use UseCase for the practical scenario where data is used to create business, operational, analytical, or technical value.
+  - id: BusinessObjective
+    uri: https://opendataproducts.org/odpv-v1.0/terms/BusinessObjective
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Business Objective
+    definition:
+      en: A business goal or intended outcome that data products, use cases, or portfolio actions support.
+    alsoKnownAs:
+      en:
+      - objective
+      - business goal
+      - strategic goal
+      - target outcome
+    relatedTerms:
+    - Outcome
+    - KPI
+    - Impact
+    - UseCase
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Reduce customer churn by 10 percent is a BusinessObjective supported by retention analytics products.
+      - Use BusinessObjective for the goal or target outcome that data products and use cases help advance.
+  - id: KPI
+    uri: https://opendataproducts.org/odpv-v1.0/terms/KPI
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: KPI
+    definition:
+      en: A measurable indicator used to track progress toward a business objective, outcome, or portfolio goal.
+    alsoKnownAs:
+      en:
+      - key performance indicator
+      - metric
+      - performance measure
+      - success measure
+    relatedTerms:
+    - BusinessObjective
+    - Outcome
+    - Impact
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Monthly churn rate is a KPI used to measure progress toward a retention objective.
+      - Use KPI for a measurable indicator connected to an objective, outcome, or impact.
+  - id: Impact
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Impact
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Impact
+    definition:
+      en: The expected or observed effect created by a data product, use case, signal, or portfolio decision.
+    alsoKnownAs:
+      en:
+      - effect
+      - value impact
+      - business impact
+      - observed effect
+    relatedTerms:
+    - Outcome
+    - Benefit
+    - KPI
+    - ValueProposition
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Reduced manual reconciliation effort is an Impact of the Finance DataProduct.
+      - Use Impact for the expected or observed effect of a data product, signal, use case, or portfolio decision.
+  - id: Signal
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Signal
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Signal
+    definition:
+      en: An observed demand, trend, risk, gap, usage pattern, policy change, market change, or operational event that may require action.
+    alsoKnownAs:
+      en:
+      - market signal
+      - demand signal
+      - trigger
+      - observation
+    relatedTerms:
+    - Demand
+    - Risk
+    - Gap
+    - Opportunity
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - A sudden rise in failed deliveries is a Signal that may indicate an operational data gap.
+      - Use Signal for observed demand, trend, risk, usage pattern, market change, policy change, or event requiring attention.
+  - id: Gap
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Gap
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Gap
+    definition:
+      en: A missing data product, dataset, capability, quality level, access method, relationship, or portfolio coverage area.
+    alsoKnownAs:
+      en:
+      - missing capability
+      - coverage gap
+      - data gap
+      - portfolio gap
+    relatedTerms:
+    - DataNeed
+    - Opportunity
+    - Signal
+    - Priority
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Missing product-level carbon emissions data is a Gap for sustainability reporting use cases.
+      - Use Gap for missing data, capability, quality, access, relationship, or portfolio coverage.
+  - id: Priority
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Priority
+    type: classification
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Priority
+    definition:
+      en: A ranking or importance level used to guide portfolio planning, product development, investment, or remediation.
+    alsoKnownAs:
+      en:
+      - importance level
+      - ranking
+      - urgency
+      - priority level
+    relatedTerms:
+    - PortfolioPriority
+    - Signal
+    - Gap
+    - Risk
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Critical is a Priority assigned to a gap blocking regulatory reporting.
+      - Use Priority for ranking importance or urgency in planning, remediation, or investment decisions.
+  - id: Outcome
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Outcome
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Outcome
+    definition:
+      en: A desired or achieved result connected to a business objective, use case, KPI, or impact statement.
+    alsoKnownAs:
+      en:
+      - result
+      - target result
+      - achieved result
+      - intended outcome
+    relatedTerms:
+    - BusinessObjective
+    - KPI
+    - Impact
+    - Benefit
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Faster fraud investigation is an Outcome of improved transaction event data.
+      - Use Outcome for a desired or achieved result connected to objectives, use cases, KPIs, or impact.
+  - id: DataNeed
+    uri: https://opendataproducts.org/odpv-v1.0/terms/DataNeed
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Data Need
+    definition:
+      en: A required data input, data product, dataset, attribute, capability, or access pattern needed to support a use case or objective.
+    alsoKnownAs:
+      en:
+      - data requirement
+      - data demand
+      - required data
+      - information need
+    relatedTerms:
+    - UseCase
+    - Gap
+    - Demand
+    - DataProduct
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Daily merchant risk scores are a DataNeed for the fraud monitoring use case.
+      - Use DataNeed for required data inputs, products, attributes, capabilities, or access patterns.
+  - id: Benefit
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Benefit
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Benefit
+    definition:
+      en: A positive business, operational, financial, social, or technical value expected from a data product, use case, or portfolio action.
+    alsoKnownAs:
+      en:
+      - value
+      - expected benefit
+      - positive impact
+      - business benefit
+    relatedTerms:
+    - Impact
+    - Outcome
+    - ValueProposition
+    usedIn:
+    - ODPC
+    examples:
+      en:
+      - Reduced reporting effort is a Benefit expected from a governed finance metrics product.
+      - Use Benefit for a positive business, operational, financial, social, or technical value.
+  - id: Demand
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Demand
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Demand
+    definition:
+      en: Evidence of need or interest from consumers, stakeholders, systems, markets, policies, or operational processes.
+    alsoKnownAs:
+      en:
+      - need
+      - interest
+      - request
+      - demand signal
+    relatedTerms:
+    - Signal
+    - DataNeed
+    - Opportunity
+    - UseCase
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Repeated requests for near-real-time inventory data are Demand for a new data product.
+      - Use Demand for evidence of need or interest from consumers, stakeholders, systems, markets, or operations.
+  - id: Opportunity
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Opportunity
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Opportunity
+    definition:
+      en: A possible area for value creation, reuse, innovation, service improvement, monetization, or better decision-making.
+    alsoKnownAs:
+      en:
+      - value opportunity
+      - improvement area
+      - innovation opportunity
+      - reuse opportunity
+    relatedTerms:
+    - Signal
+    - Gap
+    - Benefit
+    - Impact
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Combining mobility and weather data is an Opportunity for better route optimization.
+      - Use Opportunity for a possible area of reuse, innovation, service improvement, monetization, or better decisions.
+  - id: Risk
+    uri: https://opendataproducts.org/odpv-v1.0/terms/Risk
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Risk
+    definition:
+      en: A possible negative event, weakness, exposure, or uncertainty that may affect data product value, trust, access, compliance, or operation.
+    alsoKnownAs:
+      en:
+      - issue
+      - exposure
+      - threat
+      - concern
+    relatedTerms:
+    - Signal
+    - Priority
+    - Gap
+    - Governance
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - Unclear licensing for customer demographic data is a Risk for external sharing.
+      - Use Risk for a possible negative event, exposure, weakness, or uncertainty affecting value, trust, access, compliance, or operation.
+  - id: ValueProposition
+    uri: https://opendataproducts.org/odpv-v1.0/terms/ValueProposition
+    type: object
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Value Proposition
+    definition:
+      en: A short explanation of why a data product, use case, or portfolio item matters and what value it is expected to create.
+    alsoKnownAs:
+      en:
+      - value statement
+      - value case
+      - product value
+      - business value statement
+    relatedTerms:
+    - Benefit
+    - Impact
+    - Outcome
+    - UseCase
+    usedIn:
+    - ODPS
+    - ODPC
+    examples:
+      en:
+      - This product reduces onboarding time for analysts by providing governed customer features is a ValueProposition.
+      - Use ValueProposition for a short explanation of why a product, use case, or portfolio item matters.
+  - id: PortfolioPriority
+    uri: https://opendataproducts.org/odpv-v1.0/terms/PortfolioPriority
+    type: classification
+    status: stable
+    introducedIn: 1.0.0
+    preferredLabel:
+      en: Portfolio Priority
+    definition:
+      en: A portfolio-level priority assigned to a data product, use case, signal, gap, or objective.
+    alsoKnownAs:
+      en:
+      - portfolio ranking
+      - portfolio importance
+      - investment priority
+      - planning priority
+    relatedTerms:
+    - Priority
+    - Gap
+    - Signal
+    - BusinessObjective
+    usedIn:
+    - ODPC
+    - ODPG
+    examples:
+      en:
+      - High reuse potential is a PortfolioPriority for a shared customer identity data product.
+      - Use PortfolioPriority for a portfolio-level ranking assigned to products, use cases, signals, gaps, or objectives.

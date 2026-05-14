@@ -4,7 +4,7 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) and provides the package structure for ODPC, ODPG, and ODPV capabilities as they are added.
+A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) plus ODPV vocabulary tools, and provides package structure for ODPC and ODPG capabilities as they are added.
 
 ## Package Structure
 
@@ -15,7 +15,7 @@ Use `open_data_products.<spec>` namespaces for every standard:
 | `open_data_products.odps` | Open Data Product Specification | Implemented |
 | `open_data_products.odpc` | Open Data Product Catalog | Namespace reserved |
 | `open_data_products.odpg` | Open Data Product Graph | Namespace reserved |
-| `open_data_products.odpv` | Open Data Product Vocabulary | Namespace reserved |
+| `open_data_products.odpv` | Open Data Product Vocabulary | Vocabulary tools implemented |
 
 The package intentionally does not expose a standalone `odps` import path. New work should use `open_data_products.odps`.
 
@@ -26,6 +26,11 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **KPI Support**: Define and track Key Performance Indicators with targets, units, and calculations
 - **AI Agent Integration**: Support for AI agents via Model Context Protocol (MCP)
 - **Enhanced $ref Support**: JSON Reference syntax for component reusability
+
+### ODPV vocabulary tools
+- **Vocabulary search**: Search bundled ODPV terms from Python or the command line
+- **Vocabulary validation**: Check vocabulary structure and expected term/relationship counts
+- **Artifact generation**: Generate `odpv.json`, `terms.jsonl`, and section YAML artifacts from the bundled canonical vocabulary
 
 ### Core Capabilities
 - **Complete ODPS v4.1 Support**: Full implementation of the latest Open Data Product Specification
@@ -273,6 +278,27 @@ odp = OpenDataProduct.from_yaml(yaml_string)
 # From file (auto-detects format)
 odp = OpenDataProduct.from_file("product.json")
 odp = OpenDataProduct.from_file("product.yaml")
+```
+
+### ODPV Vocabulary
+
+```python
+from open_data_products.odpv import search_vocabulary, validate_vocabulary
+
+result = validate_vocabulary()
+print(result.valid, result.term_count, result.relationship_count)
+
+matches = search_vocabulary("customer churn reusable data offering", limit=3)
+print(matches[0]["id"])
+```
+
+Command line helpers are available after installation:
+
+```bash
+open-data-products-odpv-search "customer churn" --limit 3
+open-data-products-odpv-validate
+open-data-products-odpv-generate ./generated-vocab
+open-data-products-odpv-generate ./generated-vocab --check
 ```
 
 ## Development
