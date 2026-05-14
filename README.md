@@ -1,14 +1,27 @@
 # Open Data Products Python SDK
 
-[![PyPI version](https://badge.fury.io/py/odps-python.svg)](https://badge.fury.io/py/odps-python)
+[![PyPI version](https://badge.fury.io/py/open-data-products.svg)](https://badge.fury.io/py/open-data-products)
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A comprehensive, high-performance Python library for creating, validating, and manipulating [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) documents with full international standards compliance.
+A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) and provides the package structure for ODPC, ODPG, and ODPV capabilities as they are added.
 
-## 🚀 Features
+## Package Structure
 
-### ODPS v4.1 Features (NEW!)
+Use `open_data_products.<spec>` namespaces for every standard:
+
+| Namespace | Standard | Status |
+|-----------|----------|--------|
+| `open_data_products.odps` | Open Data Product Specification | Implemented |
+| `open_data_products.odpc` | Open Data Product Catalog | Namespace reserved |
+| `open_data_products.odpg` | Open Data Product Graph | Namespace reserved |
+| `open_data_products.odpv` | Open Data Product Vocabulary | Namespace reserved |
+
+The package intentionally does not expose a standalone `odps` import path. New work should use `open_data_products.odps`.
+
+## Features
+
+### ODPS v4.1
 - **ProductStrategy**: Connect data products to business objectives, KPIs, and strategic initiatives
 - **KPI Support**: Define and track Key Performance Indicators with targets, units, and calculations
 - **AI Agent Integration**: Support for AI agents via Model Context Protocol (MCP)
@@ -53,11 +66,9 @@ pip install "open-data-products[validation]"
 pip install "open-data-products[dev]"
 ```
 
-Use `open_data_products.<spec>` namespaces for all standards. ODPS is available under `open_data_products.odps`; ODPC, ODPG, and ODPV modules are reserved for the catalog, graph, and vocabulary capabilities as they are added.
-
 ## Quick Start
 
-### Basic Usage (v4.1)
+### Create an ODPS v4.1 Document
 
 ```python
 from open_data_products.odps import OpenDataProduct
@@ -144,7 +155,7 @@ odp.save("my-product.json")
 loaded = OpenDataProduct.from_file("my-product.json")
 ```
 
-## Core Components
+## ODPS Components
 
 ### ProductDetails (Required)
 - `name`: Product name
@@ -194,7 +205,7 @@ Fields like `dataAccess.name` and `dataAccess.description` support multilingual 
 
 All language keys are validated against ISO 639-1 standards.
 
-## ⚡ Performance Features
+## Performance Features
 
 ### Intelligent Caching
 The library includes sophisticated caching for optimal performance:
@@ -235,7 +246,7 @@ validation_errors = product.validation_errors  # No exceptions raised
 component_count = product.component_count
 ```
 
-## 🔧 Advanced Usage
+## Advanced Usage
 
 ### Custom Validation
 
@@ -270,7 +281,7 @@ odp = OpenDataProduct.from_file("product.yaml")
 git clone https://github.com/Open-Data-Product-Initiative/odps-python
 cd odps-python
 pip install -e ".[dev]"
-python examples/comprehensive_example.py
+python examples/basic_usage.py
 ```
 
 ### Dependencies
@@ -301,7 +312,7 @@ except ODPSValidationError as e:
     #          dataHolder email must be a valid RFC 5322 email address"
 ```
 
-## 📖 Examples
+## Examples
 
 ### Complete v4.1 Example
 See [examples/odps_v41_example.py](examples/odps_v41_example.py) for a comprehensive demonstration of all v4.1 features including:
@@ -316,11 +327,11 @@ python examples/odps_v41_example.py
 ```
 
 ### Additional Examples
-- [Basic ODPS Creation](examples/basic_example.py)
+- [Basic ODPS Creation](examples/basic_usage.py)
 - [Comprehensive ODPS Document](examples/comprehensive_example.py)
-- [Validation Examples](examples/validation_example.py)
+- [Advanced Features](examples/advanced_features.py)
 
-## 🏆 Acknowledgments
+## Acknowledgments
 
 We extend our gratitude to the following:
 
@@ -332,7 +343,7 @@ We extend our gratitude to the following:
 
 **Documentation Support** - Documentation assistance provided by Claude (Anthropic).
 
-## 📚 Links & References
+## Links & References
 
 - [Open Data Product Specification v4.1](https://opendataproducts.org/v4.1/)
 - [ODPS v4.0 → v4.1 Migration Guide](https://opendataproducts.org/v4.1/#odps-4-0-4-1-migration-guide)
