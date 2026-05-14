@@ -38,20 +38,20 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
 
 ### ODPG graph tools
-- **Graph validation**: Validate ODPG graph YAML structure, required fields, unique nodes, and edge references
+- **Graph validation**: Run lightweight structural checks for ODPG graph YAML, including required fields, unique node IDs, and edge references
 - **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
 - **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
 
 ### Core Capabilities
-- **Complete ODPS v4.1 Support**: Full implementation of the latest Open Data Product Specification
-- **International Standards Compliance**: Validates against ISO, RFC, and ITU-T standards
+- **ODPS v4.1 models and helpers**: Create, load, validate, and serialize ODPS documents using the SDK data models
+- **Standards-aware field validation**: Validates ODPS fields that use ISO, RFC, and ITU-T formats
 - **Flexible I/O**: JSON and YAML serialization/deserialization support
-- **Type Safety**: Comprehensive type hints and protocol-based duck typing
-- **Multilingual Support**: Full support for multilingual field dictionaries
+- **Type hints**: Protocol-based duck typing and typed SDK models
+- **Multilingual Support**: Language-code validation for multilingual field dictionaries
 
 ### Performance & Architecture
-- **High Performance**: Optimized with validation caching, serialization caching, and `__slots__`
-- **Modular Architecture**: Pluggable validation framework and component system
+- **Caching**: Validation and serialization caching for repeated operations
+- **Modular Architecture**: Validation framework and component model structure
 - **Protocol-Based Design**: Duck typing protocols for better type safety
 - **Comprehensive Error Handling**: Hierarchical exception system with 20+ specific error types
 
@@ -65,17 +65,14 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **RFC 3986**: URI/URL validation
 
 ### Developer Experience
-- **Comprehensive Documentation**: Full API documentation and examples
-- **IDE Support**: Complete type hints for excellent IntelliSense
+- **Documentation and examples**: API documentation plus runnable examples
+- **IDE Support**: Type hints for editor assistance
 - **Detailed Error Messages**: Specific validation errors with context
 
 ## Installation
 
 ```bash
 pip install open-data-products
-
-# For full standards validation support:
-pip install "open-data-products[validation]"
 
 # For development:
 pip install "open-data-products[dev]"
@@ -155,10 +152,10 @@ odp.license = License(
     valid_until="2025-12-31T23:59:59Z"  # ISO 8601 datetime
 )
 
-# Comprehensive validation with all standards
+# Validate the document and standards-aware fields
 try:
     odp.validate()
-    print("✓ Document valid with full standards compliance")
+    print("Document valid")
 except Exception as e:
     print(f"Validation errors: {e}")
 
@@ -192,7 +189,7 @@ loaded = OpenDataProduct.from_file("my-product.json")
 
 ## Validation Standards
 
-The library enforces all international standards referenced in ODPS v4.1:
+The library validates ODPS fields that use these international standards:
 
 | Standard | Used For | Example |
 |----------|----------|----------|
@@ -249,12 +246,12 @@ start = time.time()
 product.validate()
 cached_time = time.time() - start
 
-print(f"Cache speedup: {first_time/cached_time:.1f}x")  # Typically 20-50x faster
+print(f"Cache speedup: {first_time/cached_time:.1f}x")
 ```
 
 ### Compliance Assessment
 ```python
-# Comprehensive compliance checking
+# Convenience compliance indicators
 compliance_level = product.compliance_level  # "minimal", "basic", "substantial", "full"
 is_production_ready = product.is_production_ready
 validation_errors = product.validation_errors  # No exceptions raised
@@ -384,7 +381,7 @@ python examples/basic_usage.py
 
 ### Dependencies
 
-The library requires the following packages for full standards compliance:
+The library requires the following runtime packages:
 - `pycountry`: ISO standards validation (languages, countries, currencies)
 - `phonenumbers`: E.164 phone number validation
 - `PyYAML`: YAML format support
@@ -412,8 +409,8 @@ except ODPSValidationError as e:
 
 ## Examples
 
-### Complete v4.1 Example
-See [examples/odps_v41_example.py](examples/odps_v41_example.py) for a comprehensive demonstration of all v4.1 features including:
+### ODPS v4.1 Example
+See [examples/odps_v41_example.py](examples/odps_v41_example.py) for a demonstration of key v4.1 features including:
 - ProductStrategy with business objectives
 - KPI definitions with targets and calculations
 - AI agent integration via MCP
