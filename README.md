@@ -4,7 +4,7 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/), ODPC catalog helpers, and ODPV vocabulary tools, with package structure for ODPG capabilities as they are added.
+A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/), ODPC catalog helpers, ODPG graph helpers, and ODPV vocabulary tools.
 
 ## Package Structure
 
@@ -14,7 +14,7 @@ Use `open_data_products.<spec>` namespaces for every standard:
 |-----------|----------|--------|
 | `open_data_products.odps` | Open Data Product Specification | Implemented |
 | `open_data_products.odpc` | Open Data Product Catalog | Catalog helpers implemented |
-| `open_data_products.odpg` | Open Data Product Graph | Namespace reserved |
+| `open_data_products.odpg` | Open Data Product Graph | Graph helpers implemented |
 | `open_data_products.odpv` | Open Data Product Vocabulary | Vocabulary tools implemented |
 
 The package intentionally does not expose a standalone `odps` import path. New work should use `open_data_products.odps`.
@@ -36,6 +36,11 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **Catalog validation**: Validate ODPC YAML or JSON catalog files against the bundled schema
 - **Catalog explanation**: Summarize catalog metadata, object counts, graph references, and hints for humans and AI agents
 - **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
+
+### ODPG graph tools
+- **Graph validation**: Validate ODPG graph YAML structure, required fields, unique nodes, and edge references
+- **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
+- **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
 
 ### Core Capabilities
 - **Complete ODPS v4.1 Support**: Full implementation of the latest Open Data Product Specification
@@ -337,6 +342,35 @@ Command line helpers are available after installation:
 open-data-products-odpc-search demand
 open-data-products-odpc-explain catalog.yaml
 open-data-products-odpc-validate catalog.yaml
+```
+
+### ODPG Graphs
+
+```python
+from open_data_products.odpg import (
+    collect_relationship_types,
+    generate_graph_explorer,
+    load_graph,
+    search_graph_objects,
+    validate_graph,
+)
+
+graph = load_graph()
+print(validate_graph(graph).valid)
+print(collect_relationship_types(graph))
+
+matches = search_graph_objects(object_id="DataProduct")
+print(matches[0]["description"])
+
+generate_graph_explorer(output_file="graph-explorer.html")
+```
+
+Command line helpers are available after installation:
+
+```bash
+open-data-products-odpg-search governance
+open-data-products-odpg-validate graph.yaml
+open-data-products-odpg-generate --input graph.yaml --output graph-explorer.html
 ```
 
 ## Development

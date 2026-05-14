@@ -1,0 +1,271 @@
+{
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "$id": "https://opendataproducts.org/odpg-v1.0/schema/graph.json",
+    "title": "Open Data Product Graphs Schema",
+    "description": "Schema for Open Data Product Graphs (ODPG) v1.0 graph documents.",
+    "type": "object",
+    "additionalProperties": false,
+    "patternProperties": {
+      "^x-": {}
+    },
+    "required": [
+      "schema",
+      "version",
+      "kind",
+      "id",
+      "name",
+      "nodes",
+      "edges"
+    ],
+    "properties": {
+      "schema": {
+        "type": "string",
+        "format": "uri",
+        "description": "URL of the ODPG schema used for validation.",
+        "examples": [
+          "https://opendataproducts.org/odpg-v1.0/schema/odpg.yaml"
+        ]
+      },
+      "version": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "number"
+          }
+        ],
+        "description": "Version of the ODPG specification.",
+        "examples": [
+          "1.0",
+          1.0
+        ]
+      },
+      "kind": {
+        "type": "string",
+        "const": "DataProductGraph",
+        "description": "Type of graph specification document."
+      },
+      "id": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Unique identifier of the graph."
+      },
+      "name": {
+        "$ref": "#/$defs/LocalizedText",
+        "description": "Human-readable graph name."
+      },
+      "metadata": {
+        "$ref": "#/$defs/Metadata"
+      },
+      "nodes": {
+        "type": "array",
+        "description": "Collection of graph nodes.",
+        "minItems": 0,
+        "uniqueItems": true,
+        "items": {
+          "$ref": "#/$defs/Node"
+        }
+      },
+      "edges": {
+        "type": "array",
+        "description": "Collection of directional graph edges.",
+        "minItems": 0,
+        "items": {
+          "$ref": "#/$defs/Edge"
+        }
+      }
+    },
+    "$defs": {
+      "LocalizedText": {
+        "type": "object",
+        "description": "Localized text values keyed by ISO 639-1 two-letter language code.",
+        "minProperties": 1,
+        "additionalProperties": false,
+        "patternProperties": {
+          "^[a-z]{2}$": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      },
+      "Owner": {
+        "type": "object",
+        "additionalProperties": false,
+        "patternProperties": {
+          "^x-": {}
+        },
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Name of the owning person, team, or organization."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Contact email for the owning party."
+          }
+        }
+      },
+      "Metadata": {
+        "type": "object",
+        "description": "Optional metadata block for describing graph purpose, ownership, visibility, and discovery information.",
+        "additionalProperties": false,
+        "patternProperties": {
+          "^x-": {}
+        },
+        "properties": {
+          "name": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "description": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "domain": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "purpose": {
+            "$ref": "#/$defs/LocalizedText"
+          },
+          "tags": {
+            "type": "array",
+            "description": "Keywords used for discovery, filtering, grouping, and search.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "status": {
+            "type": "string",
+            "description": "Current status of the graph.",
+            "enum": [
+              "draft",
+              "active",
+              "deprecated",
+              "archived"
+            ]
+          },
+          "visibility": {
+            "type": "string",
+            "description": "Intended visibility of the graph.",
+            "enum": [
+              "public",
+              "internal",
+              "restricted",
+              "private"
+            ]
+          },
+          "owner": {
+            "$ref": "#/$defs/Owner"
+          }
+        }
+      },
+      "Node": {
+        "type": "object",
+        "description": "A distinct entity participating in the graph ecosystem.",
+        "additionalProperties": false,
+        "patternProperties": {
+          "^x-": {}
+        },
+        "required": [
+          "id",
+          "type",
+          "$ref"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unique identifier of the node."
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Type of graph entity represented by the node.",
+            "examples": [
+              "DataProduct",
+              "UseCase",
+              "BusinessObjective",
+              "KPI",
+              "Domain",
+              "Dataset",
+              "API",
+              "Policy",
+              "Workflow",
+              "Agent",
+              "Capability",
+              "StrategicOpportunity"
+            ]
+          },
+          "$ref": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Path or URI to the referenced specification or resource."
+          }
+        }
+      },
+      "Edge": {
+        "type": "object",
+        "description": "A directional relationship connecting two graph nodes.",
+        "additionalProperties": false,
+        "patternProperties": {
+          "^x-": {}
+        },
+        "required": [
+          "from",
+          "to",
+          "type",
+          "confidence"
+        ],
+        "properties": {
+          "from": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Source node identifier."
+          },
+          "to": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Target node identifier."
+          },
+          "type": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Relationship type.",
+            "examples": [
+              "uses",
+              "supports",
+              "contributesTo",
+              "measures",
+              "tracks",
+              "dependsOn",
+              "produces",
+              "consumes",
+              "governedBy",
+              "ownedBy",
+              "alignsWith",
+              "relatedTo",
+              "impacts",
+              "derivedFrom",
+              "exposes",
+              "monitors",
+              "identifies"
+            ]
+          },
+          "confidence": {
+            "type": "string",
+            "description": "Confidence level of the relationship.",
+            "enum": [
+              "high",
+              "medium",
+              "low"
+            ]
+          }
+        }
+      }
+    }
+  }
+  
