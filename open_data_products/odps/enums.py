@@ -20,7 +20,11 @@ from enum import Enum
 
 
 class ProductStatus(Enum):
-    """Valid product status values according to ODPS v4.0"""
+    """Valid product status values according to ODPS v4.1.
+
+    Each member exposes a ``description`` consumed by the agent manifest
+    (ARWS semantic-verbosity prescription).
+    """
 
     ANNOUNCEMENT = "announcement"
     DRAFT = "draft"
@@ -31,14 +35,33 @@ class ProductStatus(Enum):
     SUNSET = "sunset"
     RETIRED = "retired"
 
+    @property
+    def description(self) -> str:
+        return _PRODUCT_STATUS_DESCRIPTIONS[self]
+
     @classmethod
     def values(cls):
-        """Return list of all valid status values"""
         return [item.value for item in cls]
+
+    @classmethod
+    def describe(cls) -> str:
+        return "\n".join(f"- {m.value}: {m.description}" for m in cls)
+
+
+_PRODUCT_STATUS_DESCRIPTIONS = {
+    ProductStatus.ANNOUNCEMENT: "Pre-release notice that the product is planned but not yet built.",
+    ProductStatus.DRAFT: "Author is shaping the spec; subject to substantial change.",
+    ProductStatus.DEVELOPMENT: "Implementation underway; APIs and shape may still shift.",
+    ProductStatus.TESTING: "Functionally complete; under verification before release.",
+    ProductStatus.ACCEPTANCE: "Pilot users are validating production readiness.",
+    ProductStatus.PRODUCTION: "Generally available with the documented SLAs in force.",
+    ProductStatus.SUNSET: "Deprecated; existing consumers served, no new subscriptions.",
+    ProductStatus.RETIRED: "Withdrawn; resources no longer accessible.",
+}
 
 
 class ProductVisibility(Enum):
-    """Valid product visibility values according to ODPS v4.0"""
+    """Audience scope for a data product."""
 
     PRIVATE = "private"
     INVITATION = "invitation"
@@ -46,14 +69,30 @@ class ProductVisibility(Enum):
     DATASPACE = "dataspace"
     PUBLIC = "public"
 
+    @property
+    def description(self) -> str:
+        return _PRODUCT_VISIBILITY_DESCRIPTIONS[self]
+
     @classmethod
     def values(cls):
-        """Return list of all valid visibility values"""
         return [item.value for item in cls]
+
+    @classmethod
+    def describe(cls) -> str:
+        return "\n".join(f"- {m.value}: {m.description}" for m in cls)
+
+
+_PRODUCT_VISIBILITY_DESCRIPTIONS = {
+    ProductVisibility.PRIVATE: "Only the producing team can see the product.",
+    ProductVisibility.INVITATION: "Visible to explicitly invited consumers.",
+    ProductVisibility.ORGANISATION: "Visible to all members of the producing organisation.",
+    ProductVisibility.DATASPACE: "Visible to participants of a federated data space.",
+    ProductVisibility.PUBLIC: "Discoverable by anyone on the open internet.",
+}
 
 
 class ProductType(Enum):
-    """Common product type values according to ODPS v4.0"""
+    """Functional shape of the data product."""
 
     RAW_DATA = "raw data"
     DERIVED_DATA = "derived data"
@@ -69,10 +108,34 @@ class ProductType(Enum):
     DATA_ENABLED_PERFORMANCE = "data-enabled performance"
     BI_DIRECTIONAL = "bi-directional"
 
+    @property
+    def description(self) -> str:
+        return _PRODUCT_TYPE_DESCRIPTIONS[self]
+
     @classmethod
     def values(cls):
-        """Return list of all valid type values"""
         return [item.value for item in cls]
+
+    @classmethod
+    def describe(cls) -> str:
+        return "\n".join(f"- {m.value}: {m.description}" for m in cls)
+
+
+_PRODUCT_TYPE_DESCRIPTIONS = {
+    ProductType.RAW_DATA: "Source-of-truth records served without transformation.",
+    ProductType.DERIVED_DATA: "Transformed, joined, or aggregated data built from upstream sources.",
+    ProductType.DATASET: "A bounded, structured collection delivered as a unit.",
+    ProductType.REPORTS: "Pre-rendered analytical narratives or summaries.",
+    ProductType.ANALYTIC_VIEW: "A materialised analytical projection over underlying data.",
+    ProductType.VISUALIZATION_3D: "Interactive 3D rendering of spatial or model data.",
+    ProductType.ALGORITHM: "An executable model or scoring function exposed as a product.",
+    ProductType.DECISION_SUPPORT: "Recommendations that inform a human decision-maker.",
+    ProductType.AUTOMATED_DECISION_MAKING: "Decisions taken without human-in-the-loop intervention.",
+    ProductType.DATA_ENHANCED_PRODUCT: "Existing product whose value is augmented by data.",
+    ProductType.DATA_DRIVEN_SERVICE: "A service whose behaviour is steered by live data inputs.",
+    ProductType.DATA_ENABLED_PERFORMANCE: "Data feeds that close the loop on operational KPIs.",
+    ProductType.BI_DIRECTIONAL: "Product that both consumes and produces data through the same interface.",
+}
 
 
 class DataContractType(Enum):

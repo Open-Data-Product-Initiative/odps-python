@@ -15,6 +15,7 @@ from .agent import (
     validate_document,
 )
 from .resources import get_resource, list_resources
+from .summary import load_summary
 
 
 def main(argv: Optional[List[str]] = None) -> int:
@@ -40,6 +41,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     resources_parser = subparsers.add_parser("resources", help="List SDK resources")
     resources_parser.add_argument("--json", action="store_true", help="Emit JSON")
     resources_parser.add_argument("--id", help="Return one resource by id")
+
+    summary_parser = subparsers.add_parser(
+        "summary", help="Lightweight artifact reference for a document"
+    )
+    summary_parser.add_argument("document", help="Path to an ODP document")
+
+    subparsers.add_parser("manifest", help="Emit the ARWS agent manifest").add_argument(
+        "--json", action="store_true", help="Emit JSON"
+    )
+
+    subparsers.add_parser("serve", help="Run the MCP server over stdio")
 
     args = parser.parse_args(argv)
 
@@ -97,8 +109,27 @@ def main(argv: Optional[List[str]] = None) -> int:
                         f"{resource.id}\t{resource.spec}\t{resource.type}\t{resource.path}"
                     )
             return 0
+
+        if args.command == "summary":
+            print(json.dumps(load_summary(args.document), indent=2))
+            return 0
+
+        if args.command == "manifest":
+            from .mcp.manifest import generate_agent_manifest
+
+            print(json.dumps(generate_agent_manifest(), indent=2))
+            return 0
+
+        if args.command == "serve":
+            from .mcp.server import serve
+
+            return serve()
     except Exception as exc:
         print(str(exc), file=sys.stderr)
         return 1
 
     return 1
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())
