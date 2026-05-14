@@ -1,0 +1,276 @@
+"""Agent-oriented helpers across the Open Data Products standards family."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
+
+import yaml
+
+from .odpc import explain_catalog, load_catalog, validate_catalog
+from .odpg import explain_graph, load_graph, validate_graph
+from .odps import OpenDataProduct
+from .odps.exceptions import ODPSValidationError
+from .odpv import load_vocabulary, validate_vocabulary
+from .results import Reference, ValidationResult
+
+Document = Union[OpenDataProduct, Dict[str, Any]]
+
+
+def load_document(path: Union[str, Path]) -> Document:
+    """Load an ODPS, ODPC, or ODPG document from JSON or YAML."""
+    document_path = Path(path)
+    data = _load_mapping(document_path)
+    spec, _kind = detect_document(data)
+    if spec == "odps":
+        return OpenDataProduct.from_file(document_path)
+    if spec == "odpc":
+        return load_catalog(document_path)
+    if spec == "odpg":
+        return load_graph(document_path)
+    if spec == "odpv":
+        return load_vocabulary(document_path)
+    raise ValueError(f"Unsupported Open Data Products document: {document_path}")
+
+
+def detect_document(document: Document) -> Tuple[str, str]:
+    """Return ``(spec, kind)`` for an Open Data Products document."""
+    if isinstance(document, OpenDataProduct):
+        return "odps", "OpenDataProduct"
+    if not isinstance(document, dict):
+        raise ValueError("Document must be an OpenDataProduct or mapping")
+
+    schema = str(document.get("schema", "")).lower()
+    kind = str(document.get("kind", "") or "")
+    if "odpc" in schema or kind == "Catalog" or "catalog" in document:
+        return "odpc", kind or "Catalog"
+    if "odpg" in schema or kind == "DataProductGraph":
+        return "odpg", kind or "DataProductGraph"
+    if "odps" in schema or "product" in document:
+        return "odps", "OpenDataProduct"
+    if document.get("id") == "ODPV" or "sections" in document:
+        return "odpv", "Vocabulary"
+    raise ValueError("Could not detect Open Data Products specification")
+
+
+def validate_document(
+    document: Union[Document, str, Path],
+    *,
+    path: Optional[Union[str, Path]] = None,
+) -> ValidationResult:
+    """Validate an Open Data Products document using the matching spec helper."""
+    loaded = load_document(document) if isinstance(document, (str, Path)) else document
+    source_path = (
+        str(document) if isinstance(document, (str, Path)) else _path_str(path)
+    )
+    spec, kind = detect_document(loaded)
+
+    if spec == "odps":
+        try:
+            assert isinstance(loaded, OpenDataProduct)
+            loaded.validate()
+            return ValidationResult(True, spec, kind, path=source_path)
+        except ODPSValidationError as exc:
+            return ValidationResult(False, spec, kind, [str(exc)], path=source_path)
+
+    if spec == "odpc":
+        assert isinstance(loaded, dict)
+        result = validate_catalog(loaded)
+        return ValidationResult(
+            valid=result.valid,
+            spec=spec,
+            kind=kind,
+            errors=result.errors,
+            path=source_path,
+        )
+
+    if spec == "odpg":
+        assert isinstance(loaded, dict)
+        result = validate_graph(loaded)
+        return ValidationResult(
+            valid=result.valid,
+            spec=spec,
+            kind=kind,
+            errors=result.errors,
+            warnings=result.warnings,
+            hints=result.hints,
+            path=source_path,
+        )
+
+    if spec == "odpv":
+        assert isinstance(loaded, dict)
+        result = validate_vocabulary(loaded)
+        return ValidationResult(
+            valid=result.valid,
+            spec=spec,
+            kind=kind,
+            errors=result.errors,
+            path=source_path,
+        )
+
+    return ValidationResult(
+        False,
+        spec,
+        kind,
+        [f"Validation is not available for detected spec: {spec}"],
+        path=source_path,
+    )
+
+
+def explain_document(
+    document: Union[Document, str, Path],
+    *,
+    path: Optional[Union[str, Path]] = None,
+) -> str:
+    """Return a compact explanation for humans and AI agents."""
+    loaded = load_document(document) if isinstance(document, (str, Path)) else document
+    source_path = Path(document) if isinstance(document, (str, Path)) else path
+    spec, _kind = detect_document(loaded)
+    if spec == "odps":
+        assert isinstance(loaded, OpenDataProduct)
+        return explain_product(loaded, path=source_path)
+    if spec == "odpc":
+        assert isinstance(loaded, dict)
+        return explain_catalog(loaded, path=source_path or "(memory)")
+    if spec == "odpg":
+        assert isinstance(loaded, dict)
+        return explain_graph(loaded, path=source_path or "(memory)")
+    if spec == "odpv":
+        assert isinstance(loaded, dict)
+        return explain_vocabulary(loaded, path=source_path)
+    return f"Open Data Products document detected as {spec}.\n"
+
+
+def explain_product(
+    product: OpenDataProduct,
+    *,
+    path: Optional[Union[str, Path]] = None,
+) -> str:
+    """Render a compact ODPS product summary for humans and AI agents."""
+    details = product.product_details
+    lines = [
+        f"File: {path or '(memory)'}",
+        f"Schema: {product.schema}",
+        f"ODPS version: {product.version}",
+        f"Product id: {details.product_id}",
+        f"Product name: {details.name}",
+        f"Status: {details.status}",
+        f"Visibility: {details.visibility}",
+        f"Type: {details.type}",
+        f"Components: {product.component_count}",
+        f"Compliance level: {product.compliance_level}",
+        f"Production ready: {product.is_production_ready}",
+    ]
+    if product.product_strategy:
+        lines.append(f"Strategy objectives: {len(product.product_strategy.objectives)}")
+        lines.append(f"Product KPIs: {len(product.product_strategy.product_kpis)}")
+    if product.data_access:
+        lines.append("Data access: configured")
+    else:
+        lines.append("Data access: (not set)")
+    return "\n".join(lines) + "\n"
+
+
+def explain_vocabulary(
+    vocabulary: Dict[str, Any],
+    *,
+    path: Optional[Union[str, Path]] = None,
+) -> str:
+    """Render a compact ODPV vocabulary summary for humans and AI agents."""
+    result = validate_vocabulary(vocabulary)
+    sections = vocabulary.get("sections", [])
+    lines = [
+        f"File: {path or '(memory)'}",
+        f"Vocabulary id: {vocabulary.get('id', '(missing)')}",
+        f"Version: {vocabulary.get('version', '(missing)')}",
+        f"Sections: {result.section_count}",
+        f"Terms: {result.term_count}",
+        f"Relationships: {result.relationship_count}",
+        f"Valid: {result.valid}",
+    ]
+    if isinstance(sections, list) and sections:
+        section_ids = [
+            str(section.get("id"))
+            for section in sections
+            if isinstance(section, dict) and section.get("id")
+        ]
+        if section_ids:
+            lines.append(f"Section ids: {', '.join(section_ids)}")
+    return "\n".join(lines) + "\n"
+
+
+def resolve_references(
+    document: Union[Document, str, Path],
+    *,
+    path: Optional[Union[str, Path]] = None,
+) -> List[Reference]:
+    """Discover ``ref`` and ``$ref`` values for cross-spec traversal."""
+    loaded = load_document(document) if isinstance(document, (str, Path)) else document
+    source_path = (
+        str(document) if isinstance(document, (str, Path)) else _path_str(path)
+    )
+    spec, _kind = detect_document(loaded)
+    data = loaded.to_dict() if isinstance(loaded, OpenDataProduct) else loaded
+    refs = []
+    for pointer, key, value in _walk_references(data):
+        refs.append(
+            Reference(
+                ref=str(value),
+                pointer=pointer,
+                ref_type=_reference_type(pointer, key),
+                source_spec=spec,
+                target_spec=_infer_target_spec(str(value)),
+                source_path=source_path,
+            )
+        )
+    return refs
+
+
+def _load_mapping(path: Path) -> Dict[str, Any]:
+    with path.open(encoding="utf-8") as handle:
+        if path.suffix.lower() == ".json":
+            data = json.load(handle)
+        else:
+            data = yaml.safe_load(handle)
+    if not isinstance(data, dict):
+        raise ValueError("Document must contain an object at the root")
+    return data
+
+
+def _walk_references(value: Any, pointer: str = "") -> Iterable[Tuple[str, str, Any]]:
+    if isinstance(value, dict):
+        for key, item in value.items():
+            escaped = key.replace("~", "~0").replace("/", "~1")
+            child_pointer = f"{pointer}/{escaped}" if pointer else f"/{escaped}"
+            if key in {"$ref", "ref", "schema"} and isinstance(item, str):
+                yield child_pointer, key, item
+            yield from _walk_references(item, child_pointer)
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            child_pointer = f"{pointer}/{index}" if pointer else f"/{index}"
+            yield from _walk_references(item, child_pointer)
+
+
+def _reference_type(pointer: str, key: str) -> str:
+    if key == "schema":
+        return "schema"
+    if "/nodes/" in pointer:
+        return "node"
+    if "/edges/" in pointer:
+        return "edge"
+    if "graph" in pointer.lower():
+        return "graph"
+    return "reference"
+
+
+def _infer_target_spec(ref: str) -> Optional[str]:
+    lowered = ref.lower()
+    for spec in ("odps", "odpc", "odpg", "odpv"):
+        if spec in lowered:
+            return spec
+    return None
+
+
+def _path_str(path: Optional[Union[str, Path]]) -> Optional[str]:
+    return str(path) if path is not None else None

@@ -15,6 +15,17 @@ from . import odpc
 from . import odpg
 from . import odps
 from . import odpv
+from .agent import (
+    detect_document,
+    explain_document,
+    explain_product,
+    explain_vocabulary,
+    load_document,
+    resolve_references,
+    validate_document,
+)
+from .resources import get_resource, list_resources
+from .results import Reference, Resource, ValidationResult
 
 __all__ = [
     "__version__",
@@ -22,4 +33,16 @@ __all__ = [
     "odpg",
     "odps",
     "odpv",
+    "Reference",
+    "Resource",
+    "ValidationResult",
+    "detect_document",
+    "explain_document",
+    "explain_product",
+    "explain_vocabulary",
+    "get_resource",
+    "list_resources",
+    "load_document",
+    "resolve_references",
+    "validate_document",
 ]

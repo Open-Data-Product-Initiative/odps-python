@@ -53,6 +53,7 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
         nargs="?",
         help="Path to an ODPG YAML graph file. Defaults to bundled graph.",
     )
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
     args = parser.parse_args(argv)
 
     try:
@@ -66,13 +67,19 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
 
     result = validate_graph(graph)
     if not result.valid:
+        if args.json:
+            print(json.dumps(result.to_dict(), indent=2))
+            return 1
         path = args.graph or "(bundled ODPG graph)"
         print(f"{path}: invalid ODPG graph", file=sys.stderr)
         for error in result.errors:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print(f"{args.graph or '(bundled ODPG graph)'}: valid ODPG graph")
+    if args.json:
+        print(json.dumps(result.to_dict(), indent=2))
+    else:
+        print(f"{args.graph or '(bundled ODPG graph)'}: valid ODPG graph")
     return 0
 
 
@@ -97,6 +104,7 @@ def generate_main(argv: Optional[List[str]] = None) -> int:
         metavar="PATH",
         help="Output HTML file path",
     )
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
     args = parser.parse_args(argv)
 
     try:
@@ -105,5 +113,18 @@ def generate_main(argv: Optional[List[str]] = None) -> int:
         print(f"Could not generate graph explorer: {exc}", file=sys.stderr)
         return 1
 
-    print(f"Graph Explorer generated successfully: {output}")
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "spec": "odpg",
+                    "kind": "DataProductGraph",
+                    "output": str(output),
+                    "generated": True,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"Graph Explorer generated successfully: {output}")
     return 0

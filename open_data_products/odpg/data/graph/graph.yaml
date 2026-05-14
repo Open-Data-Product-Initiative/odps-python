@@ -8,39 +8,39 @@ name:
 nodes:
   - id: UC-AVIATION-001
     type: UseCase
-    ref: ../usecases/predictive-maintenance-aircraft.yaml
+    $ref: ../usecases/predictive-maintenance-aircraft.yaml
 
   - id: OBJ-AVIATION-001
     type: BusinessObjective
-    ref: ../objectives/increase-fleet-availability.yaml
+    $ref: ../objectives/increase-fleet-availability.yaml
 
   - id: KPI-AVIATION-001
     type: KPI
-    ref: ../kpis/fleet-availability-rate.yaml
+    $ref: ../kpis/fleet-availability-rate.yaml
 
   - id: DP-AVIATION-001
     type: DataProduct
-    ref: ../products/aircraft-maintenance-history.yaml
+    $ref: ../products/aircraft-maintenance-history.yaml
 
   - id: DP-AVIATION-002
     type: DataProduct
-    ref: ../products/aircraft-sensor-events.yaml
+    $ref: ../products/aircraft-sensor-events.yaml
 
   - id: API-AVIATION-001
     type: API
-    ref: ../apis/maintenance-risk-score-api.yaml
+    $ref: ../apis/maintenance-risk-score-api.yaml
 
   - id: POL-AVIATION-001
     type: Policy
-    ref: ../policies/aviation-data-quality-policy.yaml
+    $ref: ../policies/aviation-data-quality-policy.yaml
 
   - id: AGENT-AVIATION-001
     type: Agent
-    ref: ../agents/maintenance-recommendation-agent.yaml
+    $ref: ../agents/maintenance-recommendation-agent.yaml
 
   - id: OPP-AVIATION-001
     type: StrategicOpportunity
-    ref: ../opportunities/reduce-unscheduled-maintenance.yaml
+    $ref: ../opportunities/reduce-unscheduled-maintenance.yaml
 
 edges:
   - from: UC-AVIATION-001

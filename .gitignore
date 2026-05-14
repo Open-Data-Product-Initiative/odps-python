@@ -1,5 +1,6 @@
-dist/odps_python-0.1.0-py3-none-any.whl
-dist/odps_python-0.1.0.tar.gz
-build/*
-odps_python.egg-info/*
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg-info/
 .worktrees/

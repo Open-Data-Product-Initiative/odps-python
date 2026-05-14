@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "open-data-products"
 dynamic = ["version"]
-description = "Python SDK for the OpenDataProducts.org standards family, including ODPS data products and future ODPV, ODPC, and ODPG support"
+description = "Python SDK for the OpenDataProducts.org standards family, including ODPS, ODPC, ODPG, and ODPV support"
 readme = "README.md"
 license = {text = "Apache-2.0"}
 authors = [
@@ -54,6 +54,7 @@ dependencies = [
 ]
 
 [project.scripts]
+open-data-products = "open_data_products.cli:main"
 open-data-products-odpc-explain = "open_data_products.odpc.cli:explain_main"
 open-data-products-odpc-search = "open_data_products.odpc.cli:search_main"
 open-data-products-odpc-validate = "open_data_products.odpc.cli:validate_main"

@@ -4,7 +4,42 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/), ODPC catalog helpers, ODPG graph helpers, and ODPV vocabulary tools.
+A Python SDK and agent toolkit for the OpenDataProducts.org standards family. The library provides one unified Agent API for loading, detecting, validating, explaining, and traversing ODPS, ODPC, ODPG, and ODPV documents, plus spec-specific helpers for each standard.
+
+## Agent API
+
+Use the top-level API when building AI agents, automation, validation pipelines, or tools that need to work across the Open Data Products standards family:
+
+```python
+from open_data_products import (
+    explain_document,
+    list_resources,
+    load_document,
+    resolve_references,
+    validate_document,
+)
+
+document = load_document("product.yaml")
+result = validate_document(document)
+
+print(result.valid, result.spec, result.kind)
+print(explain_document(document))
+
+for reference in resolve_references(document):
+    print(reference.pointer, reference.ref)
+
+for resource in list_resources():
+    print(resource.id, resource.spec, resource.type)
+```
+
+The top-level CLI exposes the same workflow with machine-readable output:
+
+```bash
+open-data-products validate product.yaml --json
+open-data-products explain product.yaml --json
+open-data-products refs graph.yaml --json
+open-data-products resources --json
+```
 
 ## Package Structure
 
@@ -16,8 +51,6 @@ Use `open_data_products.<spec>` namespaces for every standard:
 | `open_data_products.odpc` | Open Data Product Catalog | Catalog helpers implemented |
 | `open_data_products.odpg` | Open Data Product Graph | Graph helpers implemented |
 | `open_data_products.odpv` | Open Data Product Vocabulary | Vocabulary tools implemented |
-
-The package intentionally does not expose a standalone `odps` import path. New work should use `open_data_products.odps`.
 
 ## Features
 
@@ -38,9 +71,16 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
 
 ### ODPG graph tools
-- **Graph validation**: Run lightweight structural checks for ODPG graph YAML, including required fields, unique node IDs, and edge references
+- **Graph validation**: Validate ODPG graph YAML against the bundled schema plus structural checks for unique node IDs and edge references
 - **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
 - **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
+
+### Agent toolkit
+- **Unified document API**: Auto-detect ODPS, ODPC, ODPG, and ODPV documents from Python or the command line
+- **Consistent validation results**: Return shared validation result objects with `valid`, `spec`, `kind`, `errors`, `warnings`, and `hints`
+- **Document explanations**: Generate compact summaries for ODPS products, ODPC catalogs, ODPG graphs, and ODPV vocabulary files
+- **Reference discovery**: Extract `schema`, `ref`, and `$ref` values for cross-spec traversal
+- **Resource registry**: List bundled schemas, vocabulary files, examples, and JSONL guidance records
 
 ### Core Capabilities
 - **ODPS v4.1 models and helpers**: Create, load, validate, and serialize ODPS documents using the SDK data models

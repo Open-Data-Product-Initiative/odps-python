@@ -41,20 +41,53 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(
         description="Validate bundled ODPV vocabulary data."
     )
-    parser.parse_args(argv)
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
+    args = parser.parse_args(argv)
 
     result = validate_vocabulary()
     if not result.valid:
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "valid": False,
+                        "spec": "odpv",
+                        "kind": "Vocabulary",
+                        "errors": result.errors,
+                        "term_count": result.term_count,
+                        "relationship_count": result.relationship_count,
+                        "section_count": result.section_count,
+                    },
+                    indent=2,
+                )
+            )
+            return 1
         for error in result.errors:
             print(f"ERROR: {error}", file=sys.stderr)
         return 1
 
-    print(
-        "Validation OK "
-        f"terms={result.term_count} "
-        f"relationships={result.relationship_count} "
-        f"sections={result.section_count}"
-    )
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "valid": True,
+                    "spec": "odpv",
+                    "kind": "Vocabulary",
+                    "errors": [],
+                    "term_count": result.term_count,
+                    "relationship_count": result.relationship_count,
+                    "section_count": result.section_count,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(
+            "Validation OK "
+            f"terms={result.term_count} "
+            f"relationships={result.relationship_count} "
+            f"sections={result.section_count}"
+        )
     return 0
 
 
@@ -74,6 +107,7 @@ def generate_main(argv: Optional[List[str]] = None) -> int:
         action="store_true",
         help="Fail if generated artifacts under output_dir are not in sync.",
     )
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
     args = parser.parse_args(argv)
 
     result = validate_vocabulary()
@@ -84,11 +118,37 @@ def generate_main(argv: Optional[List[str]] = None) -> int:
 
     changed = write_artifacts(args.output_dir, check=args.check)
     if args.check and changed:
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "spec": "odpv",
+                        "kind": "Vocabulary",
+                        "in_sync": False,
+                        "changed": [str(path) for path in changed],
+                    },
+                    indent=2,
+                )
+            )
+            return 1
         for path in changed:
             print(f"Out of sync: {path}")
         return 1
 
-    if args.check:
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "spec": "odpv",
+                    "kind": "Vocabulary",
+                    "in_sync": not changed,
+                    "changed": [str(path) for path in changed],
+                    "artifact_count": len(build_artifacts()),
+                },
+                indent=2,
+            )
+        )
+    elif args.check:
         print("Vocabulary artifacts are in sync")
     else:
         print(f"Generated {len(build_artifacts())} vocabulary artifacts")

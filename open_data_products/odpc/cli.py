@@ -48,6 +48,7 @@ def explain_main(argv: Optional[List[str]] = None) -> int:
         description="Explain an ODPC catalog file for humans and AI agents."
     )
     parser.add_argument("catalog", help="Path to an ODPC YAML or JSON catalog file")
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
     args = parser.parse_args(argv)
 
     path = Path(args.catalog)
@@ -60,7 +61,21 @@ def explain_main(argv: Optional[List[str]] = None) -> int:
         print(f"Parse error: {exc}", file=sys.stderr)
         return 1
 
-    print(explain_catalog(document, path=path), end="")
+    summary = explain_catalog(document, path=path)
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "spec": "odpc",
+                    "kind": "Catalog",
+                    "path": str(path),
+                    "summary": summary,
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(summary, end="")
     return 0
 
 
@@ -73,6 +88,7 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument(
         "--schema", help="Schema path. Defaults to bundled ODPC schema."
     )
+    parser.add_argument("--json", action="store_true", help="Emit JSON object output")
     args = parser.parse_args(argv)
 
     try:
@@ -90,10 +106,38 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
         return 2
 
     if not result.valid:
+        if args.json:
+            print(
+                json.dumps(
+                    {
+                        "valid": False,
+                        "spec": "odpc",
+                        "kind": "Catalog",
+                        "path": args.catalog,
+                        "errors": result.errors,
+                    },
+                    indent=2,
+                )
+            )
+            return 1
         print(f"{args.catalog}: invalid ODPC catalog", file=sys.stderr)
         for error in result.errors:
             print(f"- {error}", file=sys.stderr)
         return 1
 
-    print(f"{args.catalog}: valid ODPC catalog")
+    if args.json:
+        print(
+            json.dumps(
+                {
+                    "valid": True,
+                    "spec": "odpc",
+                    "kind": "Catalog",
+                    "path": args.catalog,
+                    "errors": [],
+                },
+                indent=2,
+            )
+        )
+    else:
+        print(f"{args.catalog}: valid ODPC catalog")
     return 0
