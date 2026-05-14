@@ -6,8 +6,8 @@ import yaml
 from pathlib import Path
 from typing import Dict, Any
 
-from odps import OpenDataProduct
-from odps.models import ProductDetails
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import ProductDetails
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def sample_product_details():
         product_id="test-001",
         visibility="public",
         status="draft",
-        type="dataset"
+        type="dataset",
     )
 
 
@@ -36,21 +36,21 @@ def demo_product_json_path():
 
 @pytest.fixture
 def demo_product_yaml_path():
-    """Path to demo product YAML file."""  
+    """Path to demo product YAML file."""
     return Path(__file__).parent.parent / "examples" / "demo_product.yaml"
 
 
 @pytest.fixture
 def demo_product_json_data(demo_product_json_path):
     """Load demo product JSON data."""
-    with open(demo_product_json_path, 'r') as f:
+    with open(demo_product_json_path, "r") as f:
         return json.load(f)
 
 
 @pytest.fixture
 def demo_product_yaml_data(demo_product_yaml_path):
     """Load demo product YAML data."""
-    with open(demo_product_yaml_path, 'r') as f:
+    with open(demo_product_yaml_path, "r") as f:
         return yaml.safe_load(f)
 
 
@@ -65,8 +65,8 @@ def minimal_valid_odps_data():
             "productID": "test-001",
             "visibility": "public",
             "status": "draft",
-            "type": "dataset"
-        }
+            "type": "dataset",
+        },
     }
 
 
@@ -81,6 +81,6 @@ def invalid_odps_data():
             "productID": "",  # Invalid: empty product ID
             "visibility": "invalid",  # Invalid: not in allowed values
             "status": "unknown",  # Invalid: not in allowed values
-            "type": "invalid"  # Invalid: not in allowed values
-        }
+            "type": "invalid",  # Invalid: not in allowed values
+        },
     }

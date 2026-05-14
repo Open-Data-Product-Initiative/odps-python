@@ -7,8 +7,8 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch
 
-from odps import OpenDataProduct, ODPSValidationError
-from odps.models import ProductDetails
+from open_data_products.odps import OpenDataProduct, ODPSValidationError
+from open_data_products.odps.models import ProductDetails
 
 
 class TestOpenDataProduct:
@@ -41,7 +41,7 @@ class TestOpenDataProduct:
         """Test JSON serialization."""
         json_str = sample_odps_product.to_json()
         assert isinstance(json_str, str)
-        
+
         # Verify it's valid JSON
         data = json.loads(json_str)
         assert data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
@@ -52,7 +52,7 @@ class TestOpenDataProduct:
         json_str = sample_odps_product.to_json(indent=2)
         assert isinstance(json_str, str)
         assert "\n" in json_str  # Should have newlines for pretty formatting
-        
+
         # Verify it's still valid JSON
         data = json.loads(json_str)
         assert data["product"]["name"] == "Test Product"
@@ -61,7 +61,7 @@ class TestOpenDataProduct:
         """Test YAML serialization."""
         yaml_str = sample_odps_product.to_yaml()
         assert isinstance(yaml_str, str)
-        
+
         # Verify it's valid YAML
         data = yaml.safe_load(yaml_str)
         assert data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
@@ -71,7 +71,7 @@ class TestOpenDataProduct:
         """Test creating OpenDataProduct from JSON string."""
         json_str = json.dumps(minimal_valid_odps_data)
         product = OpenDataProduct.from_json(json_str)
-        
+
         assert product.product_details.name == "Test Dataset"
         assert product.product_details.product_id == "test-001"
 
@@ -79,7 +79,7 @@ class TestOpenDataProduct:
         """Test creating OpenDataProduct from YAML string."""
         yaml_str = yaml.dump(minimal_valid_odps_data)
         product = OpenDataProduct.from_yaml(yaml_str)
-        
+
         assert product.product_details.name == "Test Dataset"
         assert product.product_details.product_id == "test-001"
 
@@ -99,15 +99,15 @@ class TestOpenDataProduct:
 
     def test_save_json_file(self, sample_odps_product):
         """Test saving OpenDataProduct to JSON file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             tmp_path = Path(tmp.name)
-        
+
         try:
             sample_odps_product.save(tmp_path)
             assert tmp_path.exists()
-            
+
             # Verify content
-            with open(tmp_path, 'r') as f:
+            with open(tmp_path, "r") as f:
                 data = json.load(f)
             assert data["product"]["name"] == "Test Product"
         finally:
@@ -115,15 +115,15 @@ class TestOpenDataProduct:
 
     def test_save_yaml_file(self, sample_odps_product):
         """Test saving OpenDataProduct to YAML file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as tmp:
             tmp_path = Path(tmp.name)
-        
+
         try:
             sample_odps_product.save(tmp_path)
             assert tmp_path.exists()
-            
+
             # Verify content
-            with open(tmp_path, 'r') as f:
+            with open(tmp_path, "r") as f:
                 data = yaml.safe_load(f)
             assert data["product"]["name"] == "Test Product"
         finally:
@@ -145,7 +145,7 @@ class TestOpenDataProduct:
         """Test OpenDataProduct equality."""
         product1 = OpenDataProduct(sample_product_details)
         product2 = OpenDataProduct(sample_product_details)
-        
+
         # Test that both have the same product details
         assert product1.product_details == product2.product_details
         assert product1.schema == product2.schema
@@ -169,9 +169,9 @@ class TestOpenDataProduct:
             product_id="updated-001",
             visibility="private",
             status="production",
-            type="api"
+            type="api",
         )
-        
+
         sample_odps_product.product_details = new_details
         assert sample_odps_product.product_details.name == "Updated Product"
         assert sample_odps_product.product_details.visibility == "private"

@@ -1,6 +1,6 @@
-# Building and Distributing ODPS Python Library
+# Building and Distributing Open Data Products Python SDK
 
-This guide explains how to package the ODPS Python library as a wheel file for distribution.
+This guide explains how to package the Open Data Products Python SDK as a wheel file for distribution.
 
 ## Quick Reference
 
@@ -12,10 +12,10 @@ pip install build
 python -m build
 
 # Install locally for testing
-pip install dist/odps_python-0.1.0-py3-none-any.whl
+pip install dist/open_data_products-0.2.0-py3-none-any.whl
 
 # Test functionality
-python -c "import odps; print(odps.__version__)"
+python -c "import open_data_products; print(open_data_products.__version__)"
 ```
 
 ## Prerequisites
@@ -37,8 +37,8 @@ pip install build
 python -m build
 
 # This creates files in dist/:
-# - odps_python-0.2.0-py3-none-any.whl (wheel file)
-# - odps-python-0.2.0.tar.gz (source distribution)
+# - open_data_products-0.2.0-py3-none-any.whl (wheel file)
+# - open_data_products-0.2.0.tar.gz (source distribution)
 ```
 
 ## Method 2: Build with specific options
@@ -61,7 +61,7 @@ After building, install the wheel locally for testing:
 
 ```bash
 # Install the built wheel
-pip install dist/odps_python-0.2.0-py3-none-any.whl
+pip install dist/open_data_products-0.2.0-py3-none-any.whl
 
 # Or install in development mode with extras
 pip install -e ".[dev]"
@@ -72,11 +72,11 @@ pip install -e ".[dev]"
 Test the installed package:
 
 ```python
-import odps
-print(odps.__version__)  # Should print 0.2.0
+import open_data_products
+print(open_data_products.__version__)  # Should print 0.2.0
 
-from odps import OpenDataProduct, ODPSValidator
-from odps.models import ProductDetails
+from open_data_products.odps import OpenDataProduct, ODPSValidator
+from open_data_products.odps.models import ProductDetails
 
 # Test basic functionality
 product = ProductDetails(

@@ -260,8 +260,8 @@ tests/
 
 ```python
 import pytest
-from odps import OpenDataProduct, ProductDetails
-from odps.exceptions import ODPSValidationError
+from open_data_products.odps import OpenDataProduct, ProductDetails
+from open_data_products.odps.exceptions import ODPSValidationError
 
 class TestProductValidation:
     """Test suite for product validation."""

@@ -5,8 +5,8 @@ import json
 import yaml
 from pathlib import Path
 
-from odps import OpenDataProduct
-from odps.models import ProductDetails
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import ProductDetails
 
 
 class TestDemoFiles:
@@ -16,58 +16,72 @@ class TestDemoFiles:
         """Test loading demo product from JSON file."""
         if not demo_product_json_path.exists():
             pytest.skip("Demo JSON file not found")
-        
+
         product = OpenDataProduct.from_file(demo_product_json_path)
-        
+
         # Verify basic properties
         assert isinstance(product, OpenDataProduct)
         assert product.schema == "https://opendataproducts.org/v4.0/schema/odps.json"
         assert product.version == "4.0"
-        
+
         # Verify product details
         assert product.product_details.name is not None
         assert product.product_details.product_id is not None
-        assert product.product_details.visibility in ["public", "private", "organisation"]
+        assert product.product_details.visibility in [
+            "public",
+            "private",
+            "organisation",
+        ]
         assert product.product_details.status in ["draft", "production", "deprecated"]
-        assert product.product_details.type in ["dataset", "api", "ml-model", "algorithm"]
+        assert product.product_details.type in [
+            "dataset",
+            "api",
+            "ml-model",
+            "algorithm",
+        ]
 
     def test_load_demo_yaml(self, demo_product_yaml_path):
         """Test loading demo product from YAML file."""
         if not demo_product_yaml_path.exists():
             pytest.skip("Demo YAML file not found")
-        
+
         product = OpenDataProduct.from_file(demo_product_yaml_path)
-        
+
         # Verify basic properties
         assert isinstance(product, OpenDataProduct)
         assert product.schema == "https://opendataproducts.org/v4.0/schema/odps.json"
         assert product.version == "4.0"
-        
+
         # Verify product details exist
         assert product.product_details.name is not None
         assert product.product_details.product_id is not None
 
-    def test_demo_json_yaml_equivalence(self, demo_product_json_path, demo_product_yaml_path):
+    def test_demo_json_yaml_equivalence(
+        self, demo_product_json_path, demo_product_yaml_path
+    ):
         """Test that JSON and YAML demo files contain equivalent data."""
         if not (demo_product_json_path.exists() and demo_product_yaml_path.exists()):
             pytest.skip("Both demo files not found")
-        
+
         json_product = OpenDataProduct.from_file(demo_product_json_path)
         yaml_product = OpenDataProduct.from_file(demo_product_yaml_path)
-        
+
         # Should have same basic properties
         assert json_product.schema == yaml_product.schema
         assert json_product.version == yaml_product.version
         assert json_product.product_details.name == yaml_product.product_details.name
-        assert json_product.product_details.product_id == yaml_product.product_details.product_id
+        assert (
+            json_product.product_details.product_id
+            == yaml_product.product_details.product_id
+        )
 
     def test_demo_product_validation(self, demo_product_json_path):
         """Test that demo product passes validation."""
         if not demo_product_json_path.exists():
             pytest.skip("Demo JSON file not found")
-        
+
         product = OpenDataProduct.from_file(demo_product_json_path)
-        
+
         # Should validate successfully
         result = product.validate()
         assert result is True
@@ -76,32 +90,42 @@ class TestDemoFiles:
         """Test demo product serialization roundtrip."""
         if not demo_product_json_path.exists():
             pytest.skip("Demo JSON file not found")
-        
+
         # Load original
         original_product = OpenDataProduct.from_file(demo_product_json_path)
-        
+
         # Serialize to JSON and back
         json_str = original_product.to_json()
         json_product = OpenDataProduct.from_json(json_str)
-        
+
         # Should be equivalent
-        assert json_product.product_details.name == original_product.product_details.name
-        assert json_product.product_details.product_id == original_product.product_details.product_id
-        
+        assert (
+            json_product.product_details.name == original_product.product_details.name
+        )
+        assert (
+            json_product.product_details.product_id
+            == original_product.product_details.product_id
+        )
+
         # Serialize to YAML and back
         yaml_str = original_product.to_yaml()
         yaml_product = OpenDataProduct.from_yaml(yaml_str)
-        
+
         # Should be equivalent
-        assert yaml_product.product_details.name == original_product.product_details.name
-        assert yaml_product.product_details.product_id == original_product.product_details.product_id
+        assert (
+            yaml_product.product_details.name == original_product.product_details.name
+        )
+        assert (
+            yaml_product.product_details.product_id
+            == original_product.product_details.product_id
+        )
 
     def test_demo_product_has_expected_fields(self, demo_product_json_data):
         """Test that demo product contains expected ODPS v4.0 fields."""
         # Should have schema and version
         assert demo_product_json_data.get("schema") is not None
         assert demo_product_json_data.get("version") == "4.0"
-        
+
         # Should have product section
         product_data = demo_product_json_data.get("product", {})
         assert "name" in product_data
@@ -114,15 +138,21 @@ class TestDemoFiles:
         """Test demo product optional components."""
         # Check for optional components that might be present
         optional_components = [
-            "dataContract", "sla", "dataQuality", "pricingPlans", 
-            "license", "dataAccess", "dataHolder", "paymentGateways"
+            "dataContract",
+            "sla",
+            "dataQuality",
+            "pricingPlans",
+            "license",
+            "dataAccess",
+            "dataHolder",
+            "paymentGateways",
         ]
-        
+
         present_components = []
         for component in optional_components:
             if component in demo_product_json_data:
                 present_components.append(component)
-        
+
         # Should have some optional components for a complete demo
         # (This is informational - not all demos need all components)
         print(f"Demo product includes components: {present_components}")
@@ -136,15 +166,15 @@ class TestExampleUsage:
         # Create product details
         details = ProductDetails(
             name="My Dataset",
-            product_id="dataset-001", 
+            product_id="dataset-001",
             visibility="public",
             status="production",
-            type="dataset"
+            type="dataset",
         )
-        
+
         # Create ODPS document
         product = OpenDataProduct(details)
-        
+
         # Validate and export
         assert product.validate() is True
         json_str = product.to_json()
@@ -166,15 +196,15 @@ class TestExampleUsage:
             language=["en"],
             geography="US",
             created="2023-01-01T00:00:00Z",
-            updated="2023-12-31T23:59:59Z"
+            updated="2023-12-31T23:59:59Z",
         )
-        
+
         # Create product
         product = OpenDataProduct(details)
-        
+
         # Should validate
         assert product.validate() is True
-        
+
         # Should serialize properly
         data = product.to_dict()
         assert data["product"]["name"] == "Advanced Analytics Dataset"
@@ -187,45 +217,47 @@ class TestExampleUsage:
             product_id="minimal-001",
             visibility="public",
             status="draft",
-            type="dataset"
+            type="dataset",
         )
-        
+
         product = OpenDataProduct(details)
-        
+
         # Should be valid even with minimal fields
         assert product.validate() is True
-        
+
         # Should serialize to valid JSON
         json_data = json.loads(product.to_json())
-        assert json_data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
+        assert (
+            json_data["schema"] == "https://opendataproducts.org/v4.1/schema/odps.json"
+        )
         assert json_data["version"] == "4.1"
 
     def test_product_with_use_cases(self):
         """Test product with use cases."""
-        from odps.models import UseCase
-        
+        from open_data_products.odps.models import UseCase
+
         use_cases = [
             UseCase(
                 title="Business Intelligence",
-                description="Generate business reports and dashboards"
+                description="Generate business reports and dashboards",
             ),
             UseCase(
-                title="Predictive Analytics", 
-                description="Build predictive models for forecasting"
-            )
+                title="Predictive Analytics",
+                description="Build predictive models for forecasting",
+            ),
         ]
-        
+
         details = ProductDetails(
             name="Multi-Purpose Dataset",
             product_id="multi-001",
             visibility="public",
             status="production",
             type="dataset",
-            use_cases=use_cases
+            use_cases=use_cases,
         )
-        
+
         product = OpenDataProduct(details)
-        
+
         assert product.validate() is True
         assert len(product.product_details.use_cases) == 2
         assert product.product_details.use_cases[0].title == "Business Intelligence"
@@ -236,16 +268,16 @@ class TestExampleUsage:
             name="International Dataset",
             product_id="intl-001",
             visibility="public",
-            status="production", 
+            status="production",
             type="dataset",
             description="Dataset with international standards compliance",
             language=["en", "es", "fr"],  # Multi-language support
             geography="EU",  # European market
-            standards=["ISO 8601", "ISO 3166"]  # International standards
+            standards=["ISO 8601", "ISO 3166"],  # International standards
         )
-        
+
         product = OpenDataProduct(details)
-        
+
         assert product.validate() is True
         assert "es" in product.product_details.language
         assert "fr" in product.product_details.language
@@ -260,11 +292,11 @@ class TestExampleUsage:
             type="api",
             description="RESTful API for customer data access",
             homepage="https://api.example.com/customers",
-            product_version="1.2.0"
+            product_version="1.2.0",
         )
-        
+
         product = OpenDataProduct(details)
-        
+
         assert product.validate() is True
         assert product.product_details.type == "api"
         assert product.product_details.homepage == "https://api.example.com/customers"
@@ -280,11 +312,11 @@ class TestExampleUsage:
             description="Machine learning model for sales forecasting",
             categories=["machine-learning", "forecasting"],
             product_version="3.1.0",
-            version_notes="Improved accuracy with new features"
+            version_notes="Improved accuracy with new features",
         )
-        
+
         product = OpenDataProduct(details)
-        
+
         assert product.validate() is True
         assert product.product_details.type == "ml-model"
         assert "machine-learning" in product.product_details.categories

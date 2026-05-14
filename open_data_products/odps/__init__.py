@@ -31,7 +31,7 @@ Features:
     - Modular architecture with pluggable validators
 
 Quick Start:
-    >>> from odps import OpenDataProduct, ProductDetails, ProductStrategy, KPI
+    >>> from open_data_products.odps import OpenDataProduct, ProductDetails, ProductStrategy, KPI
     >>>
     >>> # Create product details
     >>> details = ProductDetails(
@@ -74,11 +74,13 @@ Modules:
     enums: Enumeration classes for constants
     exceptions: Exception hierarchy
 
-For detailed documentation, see: https://github.com/accenture/odps-python
+For detailed documentation, see: https://github.com/Open-Data-Product-Initiative/odps-python
 For ODPS specification: https://opendataproducts.org/v4.1/
 """
 
 __version__ = "0.2.0"
+SPEC_ID = "odps"
+SPEC_NAME = "Open Data Product Specification"
 
 from .core import OpenDataProduct
 from .models import *
@@ -87,4 +89,4 @@ from .enums import *
 from .exceptions import *
 from .protocols import *
 
-__all__ = ["OpenDataProduct", "ODPSValidationError", "ODPSValidator"]
+__all__ = sorted(name for name in globals() if not name.startswith("_"))

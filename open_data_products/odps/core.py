@@ -16,11 +16,11 @@
 Core OpenDataProduct class for handling ODPS documents.
 
 This module provides the main OpenDataProduct class that implements the Open Data Product
-Specification (ODPS) v4.0. It supports creating, loading, validating, and manipulating
+Specification (ODPS) v4.1. It supports creating, loading, validating, and manipulating
 ODPS documents with full element compliance to appropriate international standards.
 
 Key Features:
-    - Full ODPS v4.0 specification compliance
+    - Full ODPS v4.1 specification compliance
     - JSON and YAML serialization/deserialization
     - Comprehensive validation with detailed error reporting
     - Performance optimizations with caching and __slots__
@@ -30,7 +30,7 @@ Key Features:
 Example:
     Basic usage of OpenDataProduct:
 
-    >>> from odps import OpenDataProduct, ProductDetails
+    >>> from open_data_products.odps import OpenDataProduct, ProductDetails
     >>> details = ProductDetails(
     ...     name="My Data Product",
     ...     product_id="dp-001",
@@ -54,7 +54,6 @@ See Also:
 
 import json
 import yaml
-from dataclasses import asdict
 from typing import Dict, Any, Optional, Union, List
 from pathlib import Path
 import hashlib
@@ -62,7 +61,6 @@ import hashlib
 from .models import (
     ProductDetails,
     ProductStrategy,
-    KPI,
     DataContract,
     SLA,
     DataQuality,
@@ -72,8 +70,30 @@ from .models import (
     DataAccessMethod,
     DataHolder,
     PaymentGateways,
-    UseCase,
     SpecificationExtensions,
+)
+from .codecs import (
+    parse_data_access,
+    parse_data_contract,
+    parse_data_holder,
+    parse_data_quality,
+    parse_extensions,
+    parse_license,
+    parse_payment_gateways,
+    parse_pricing_plans,
+    parse_product_details,
+    parse_product_strategy,
+    parse_sla,
+    serialize_data_access,
+    serialize_data_contract,
+    serialize_data_holder,
+    serialize_data_quality,
+    serialize_license,
+    serialize_payment_gateways,
+    serialize_pricing_plans,
+    serialize_product_details,
+    serialize_product_strategy,
+    serialize_sla,
 )
 from .validation import ODPSValidationFramework
 from .exceptions import (
@@ -84,12 +104,13 @@ from .exceptions import (
 )
 from .protocols import is_validatable, validate_protocol_compliance
 
+
 class OpenDataProduct:
     """
-    Main class for handling Open Data Product Specification (ODPS) v4.0 documents.
+    Main class for handling Open Data Product Specification (ODPS) v4.1 documents.
 
     This class provides comprehensive support for creating, loading, validating, and
-    manipulating ODPS documents. It implements the full ODPS v4.0 specification with
+    manipulating ODPS documents. It implements the full ODPS v4.1 specification with
     performance optimizations and type safety.
 
     The class supports all ODPS components including:
@@ -105,8 +126,8 @@ class OpenDataProduct:
     - Custom Extensions (optional)
 
     Attributes:
-        schema (str): ODPS schema URL (https://opendataproducts.org/v4.0/schema/odps.json)
-        version (str): ODPS version (4.0)
+        schema (str): ODPS schema URL (https://opendataproducts.org/v4.1/schema/odps.json)
+        version (str): ODPS version (4.1)
         product_details (ProductDetails): Core product information (required)
         data_contract (DataContract, optional): Data contract specifications
         sla (SLA, optional): Service level agreement
@@ -127,7 +148,7 @@ class OpenDataProduct:
     Example:
         Creating a basic ODPS document:
 
-        >>> from odps import OpenDataProduct, ProductDetails
+        >>> from open_data_products.odps import OpenDataProduct, ProductDetails
         >>> details = ProductDetails(
         ...     name="Customer Demographics Dataset",
         ...     product_id="cust-demo-001",
@@ -139,7 +160,7 @@ class OpenDataProduct:
         >>> product = OpenDataProduct(details)
         >>>
         >>> # Add optional components
-        >>> from odps.models import License
+        >>> from open_data_products.odps.models import License
         >>> product.add_license(
         ...     scope_of_use="commercial",
         ...     geographical_area=["US", "EU"]
@@ -189,122 +210,6 @@ class OpenDataProduct:
     REQUIRED_SCHEMA = "https://opendataproducts.org/v4.1/schema/odps.json"
     REQUIRED_VERSION = "4.1"
 
-    # Field mapping for snake_case to camelCase conversion
-    PRODUCT_DETAILS_MAPPING = {
-        "product_id": "productID",
-        "value_proposition": "valueProposition",
-        "logo_url": "logoURL",
-        "product_series": "productSeries",
-        "product_version": "productVersion",
-        "version_notes": "versionNotes",
-        "content_sample": "contentSample",
-        "brand_slogan": "brandSlogan",
-        "use_cases": "useCases",
-        "recommended_data_products": "recommendedDataProducts",
-        "output_file_formats": "outputFileFormats",
-    }
-
-    DATA_CONTRACT_MAPPING = {
-        "contract_version": "contractVersion",
-        "contract_url": "contractURL",
-        "dollar_ref": "$ref",
-    }
-
-    PRODUCT_STRATEGY_MAPPING = {
-        "contributes_to_kpi": "contributesToKPI",
-        "product_kpis": "productKPIs",
-        "related_kpis": "relatedKPIs",
-        "strategic_alignment": "strategicAlignment",
-    }
-
-    KPI_MAPPING = {
-        # All KPI fields use their existing names (no camelCase conversion needed)
-    }
-
-    LICENSE_MAPPING = {
-        "scope_of_use": "scopeOfUse",
-        "geographical_area": "geographicalArea",
-        "right_to_sublicense": "rightToSublicense",
-        "right_to_modify": "rightToModify",
-        "valid_from": "validFrom",
-        "valid_until": "validUntil",
-        "license_grant": "licenseGrant",
-        "license_name": "licenseName",
-        "license_url": "licenseURL",
-        "scope_details": "scopeDetails",
-        "termination_conditions": "terminationConditions",
-        "governance_specifics": "governanceSpecifics",
-        "audit_terms": "auditTerms",
-        "confidentiality_clauses": "confidentialityClauses",
-    }
-
-    DATA_HOLDER_MAPPING = {
-        "phone_number": "phoneNumber",
-        "business_identifiers": "businessIdentifiers",
-        "contact_person": "contactPerson",
-        "contact_phone": "contactPhone",
-        "contact_email": "contactEmail",
-        "address_street": "addressStreet",
-        "address_city": "addressCity",
-        "address_state": "addressState",
-        "address_postal_code": "addressPostalCode",
-        "address_country": "addressCountry",
-        "organizational_description": "organizationalDescription",
-    }
-
-    PRICING_PLAN_MAPPING = {
-        "price_currency": "priceCurrency",
-        "billing_duration": "billingDuration",
-        "max_transactions_per_second": "maxTransactionsPerSecond",
-        "max_transactions_per_month": "maxTransactionsPerMonth",
-        "min_price": "minPrice",
-        "max_price": "maxPrice",
-        "value_added_tax": "valueAddedTax",
-        "valid_from": "validFrom",
-        "valid_to": "validTo",
-        "additional_pricing_details": "additionalPricingDetails",
-        "quality_profile_reference": "qualityProfileReference",
-        "sla_profile_reference": "slaProfileReference",
-        "access_profile_reference": "accessProfileReference",
-    }
-
-    DATA_ACCESS_MAPPING = {
-        "output_port_type": "outputPorttype",
-        "access_url": "accessURL",
-        "authentication_method": "authenticationMethod",
-        "specs_url": "specsURL",
-        "documentation_url": "documentationURL",
-        "dollar_ref": "$ref",
-    }
-
-    PAYMENT_GATEWAY_MAPPING = {
-        "executable_specifications": "executableSpecifications",
-        "dollar_ref": "$ref",
-    }
-
-    SLA_MAPPING = {
-        "dollar_ref": "$ref",
-    }
-
-    DATA_QUALITY_MAPPING = {
-        "dollar_ref": "$ref",
-    }
-
-    @staticmethod
-    def _convert_snake_to_camel(
-        data_dict: Dict[str, Any], mapping: Dict[str, str]
-    ) -> None:
-        """
-        Convert snake_case keys to camelCase using provided mapping.
-
-        Args:
-            data_dict: Dictionary to modify in-place
-            mapping: Dictionary mapping snake_case keys to camelCase keys
-        """
-        for snake_key, camel_key in mapping.items():
-            if snake_key in data_dict:
-                data_dict[camel_key] = data_dict.pop(snake_key)
-
     def _generate_hash(self) -> str:
         """Generate hash of current object state for cache invalidation."""
         if self._hash_cache is None:
@@ -325,7 +230,9 @@ class OpenDataProduct:
                 "extensions": str(self.extensions),
             }
             state_str = json.dumps(state_data, sort_keys=True)
-            self._hash_cache = hashlib.md5(state_str.encode(), usedforsecurity=False).hexdigest()
+            self._hash_cache = hashlib.md5(
+                state_str.encode(), usedforsecurity=False
+            ).hexdigest()
 
         return self._hash_cache
 
@@ -360,7 +267,7 @@ class OpenDataProduct:
 
         # Performance caches
         self._validation_cache: Dict[str, Any] = {}
-        self._serialization_cache: Dict[str, str] = {}
+        self._serialization_cache: Dict[Any, str] = {}
         self._hash_cache: Optional[str] = None
 
     @classmethod
@@ -382,48 +289,7 @@ class OpenDataProduct:
         if not product_data:
             raise ODPSValidationError("Missing required 'product' section")
 
-        # Parse use cases
-        use_cases = []
-        for uc_data in product_data.get("useCases", []):
-            use_case = UseCase(
-                title=uc_data.get("title", ""),
-                description=uc_data.get("description", ""),
-                url=uc_data.get("url"),
-            )
-            use_cases.append(use_case)
-
-        # Create ProductDetails with all optional attributes
-        product_details = ProductDetails(
-            name=product_data.get("name", ""),
-            product_id=product_data.get("productID", ""),
-            visibility=product_data.get("visibility", ""),
-            status=product_data.get("status", ""),
-            type=product_data.get("type", ""),
-            value_proposition=product_data.get("valueProposition"),
-            description=product_data.get("description"),
-            categories=product_data.get("categories", []),
-            tags=product_data.get("tags", []),
-            brand=product_data.get("brand"),
-            keywords=product_data.get("keywords", []),
-            themes=product_data.get("themes", []),
-            geography=product_data.get("geography"),
-            language=product_data.get("language", []),
-            homepage=product_data.get("homepage"),
-            logo_url=product_data.get("logoURL"),
-            # Additional optional attributes
-            created=product_data.get("created"),
-            updated=product_data.get("updated"),
-            product_series=product_data.get("productSeries"),
-            standards=product_data.get("standards", []),
-            product_version=product_data.get("productVersion"),
-            version_notes=product_data.get("versionNotes"),
-            issues=product_data.get("issues"),
-            content_sample=product_data.get("contentSample"),
-            brand_slogan=product_data.get("brandSlogan"),
-            use_cases=use_cases,
-            recommended_data_products=product_data.get("recommendedDataProducts", []),
-            output_file_formats=product_data.get("outputFileFormats", []),
-        )
+        product_details = parse_product_details(product_data)
 
         instance = cls(product_details)
         instance.schema = schema or cls.REQUIRED_SCHEMA
@@ -431,197 +297,45 @@ class OpenDataProduct:
 
         # Load product strategy (v4.1)
         if "productStrategy" in product_data:
-            ps_data = product_data["productStrategy"]
-
-            # Parse contributes_to_kpi
-            contributes_to_kpi = None
-            if "contributesToKPI" in ps_data:
-                kpi_data = ps_data["contributesToKPI"]
-                contributes_to_kpi = KPI(
-                    name=kpi_data.get("name", ""),
-                    id=kpi_data.get("id"),
-                    description=kpi_data.get("description"),
-                    unit=kpi_data.get("unit"),
-                    target=kpi_data.get("target"),
-                    direction=kpi_data.get("direction"),
-                    timeframe=kpi_data.get("timeframe"),
-                    frequency=kpi_data.get("frequency"),
-                    owner=kpi_data.get("owner"),
-                    calculation=kpi_data.get("calculation"),
-                )
-
-            # Parse product_kpis
-            product_kpis = []
-            for kpi_data in ps_data.get("productKPIs", []):
-                kpi = KPI(
-                    name=kpi_data.get("name", ""),
-                    id=kpi_data.get("id"),
-                    description=kpi_data.get("description"),
-                    unit=kpi_data.get("unit"),
-                    target=kpi_data.get("target"),
-                    direction=kpi_data.get("direction"),
-                    timeframe=kpi_data.get("timeframe"),
-                    frequency=kpi_data.get("frequency"),
-                    owner=kpi_data.get("owner"),
-                    calculation=kpi_data.get("calculation"),
-                )
-                product_kpis.append(kpi)
-
-            # Parse related_kpis
-            related_kpis = []
-            for kpi_data in ps_data.get("relatedKPIs", []):
-                kpi = KPI(
-                    name=kpi_data.get("name", ""),
-                    id=kpi_data.get("id"),
-                    description=kpi_data.get("description"),
-                    unit=kpi_data.get("unit"),
-                    target=kpi_data.get("target"),
-                    direction=kpi_data.get("direction"),
-                    timeframe=kpi_data.get("timeframe"),
-                    frequency=kpi_data.get("frequency"),
-                    owner=kpi_data.get("owner"),
-                    calculation=kpi_data.get("calculation"),
-                )
-                related_kpis.append(kpi)
-
-            instance.product_strategy = ProductStrategy(
-                objectives=ps_data.get("objectives", []),
-                contributes_to_kpi=contributes_to_kpi,
-                product_kpis=product_kpis,
-                related_kpis=related_kpis,
-                strategic_alignment=ps_data.get("strategicAlignment", []),
+            instance.product_strategy = parse_product_strategy(
+                product_data["productStrategy"]
             )
 
         # Load data holder
         if "dataHolder" in product_data:
-            dh_data = product_data["dataHolder"]
-            instance.data_holder = DataHolder(
-                name=dh_data.get("name", ""),
-                email=dh_data.get("email", ""),
-                url=dh_data.get("url"),
-                phone_number=dh_data.get("phoneNumber"),
-                address=dh_data.get("address"),
-                # Additional optional attributes
-                business_identifiers=dh_data.get("businessIdentifiers", []),
-                contact_person=dh_data.get("contactPerson"),
-                contact_phone=dh_data.get("contactPhone"),
-                contact_email=dh_data.get("contactEmail"),
-                address_street=dh_data.get("addressStreet"),
-                address_city=dh_data.get("addressCity"),
-                address_state=dh_data.get("addressState"),
-                address_postal_code=dh_data.get("addressPostalCode"),
-                address_country=dh_data.get("addressCountry"),
-                ratings=dh_data.get("ratings"),
-                organizational_description=dh_data.get("organizationalDescription"),
-            )
+            instance.data_holder = parse_data_holder(product_data["dataHolder"])
 
         # Load pricing plans
         if "pricingPlans" in product_data:
-            pp_data = product_data["pricingPlans"]
-            plans = []
-            for plan_data in pp_data.get("plans", []):
-                from .models import PricingPlan
-
-                plan = PricingPlan(
-                    name=plan_data.get("name", ""),
-                    price_currency=plan_data.get("priceCurrency", ""),
-                    price=plan_data.get("price"),
-                    billing_duration=plan_data.get("billingDuration"),
-                    unit=plan_data.get("unit"),
-                    max_transactions_per_second=plan_data.get(
-                        "maxTransactionsPerSecond"
-                    ),
-                    max_transactions_per_month=plan_data.get("maxTransactionsPerMonth"),
-                )
-                plans.append(plan)
-            instance.pricing_plans = PricingPlans(plans=plans)
+            instance.pricing_plans = parse_pricing_plans(product_data["pricingPlans"])
 
         # Load optional components
         if "dataContract" in product_data:
-            dc_data = product_data["dataContract"]
-            instance.data_contract = DataContract(
-                id=dc_data.get("id"),
-                type=dc_data.get("type"),
-                contract_version=dc_data.get("contractVersion"),
-                contract_url=dc_data.get("contractURL"),
-                spec=dc_data.get("spec"),
-                ref=dc_data.get("ref"),
-                dollar_ref=dc_data.get("$ref"),
-            )
+            instance.data_contract = parse_data_contract(product_data["dataContract"])
 
         if "SLA" in product_data:
-            # TODO: Parse SLA profiles from data
-            instance.sla = SLA()
+            instance.sla = parse_sla(product_data["SLA"])
 
         if "dataQuality" in product_data:
-            # TODO: Parse DataQuality profiles from data
-            instance.data_quality = DataQuality()
+            instance.data_quality = parse_data_quality(product_data["dataQuality"])
 
         if "dataAccess" in product_data:
             da_data = product_data["dataAccess"]
             if "default" not in da_data:
                 raise ODPSValidationError("dataAccess requires a 'default' method")
 
-            default_method = DataAccessMethod(
-                name=da_data["default"].get("name"),
-                description=da_data["default"].get("description"),
-                output_port_type=da_data["default"].get("outputPorttype"),
-                format=da_data["default"].get("format"),
-                access_url=da_data["default"].get("accessURL"),
-                authentication_method=da_data["default"].get("authenticationMethod"),
-                specs_url=da_data["default"].get("specsURL"),
-                documentation_url=da_data["default"].get("documentationURL"),
-                specification=da_data["default"].get("specification"),
-            )
-
-            additional_methods = {}
-            for key, method_data in da_data.items():
-                if key != "default":
-                    additional_methods[key] = DataAccessMethod(
-                        name=method_data.get("name"),
-                        description=method_data.get("description"),
-                        output_port_type=method_data.get("outputPorttype"),
-                        format=method_data.get("format"),
-                        access_url=method_data.get("accessURL"),
-                        authentication_method=method_data.get("authenticationMethod"),
-                        specs_url=method_data.get("specsURL"),
-                        documentation_url=method_data.get("documentationURL"),
-                        specification=method_data.get("specification"),
-                    )
-
-            instance.data_access = DataAccess(
-                default=default_method, additional_methods=additional_methods
-            )
+            instance.data_access = parse_data_access(da_data)
 
         if "license" in product_data:
-            license_data = product_data["license"]
-            instance.license = License(
-                scope_of_use=license_data.get("scopeOfUse", ""),
-                geographical_area=license_data.get("geographicalArea", []),
-                permanent=license_data.get("permanent", True),
-                exclusive=license_data.get("exclusive", False),
-                right_to_sublicense=license_data.get("rightToSublicense", False),
-                right_to_modify=license_data.get("rightToModify", False),
-                valid_from=license_data.get("validFrom"),
-                valid_until=license_data.get("validUntil"),
-                license_grant=license_data.get("licenseGrant"),
-                license_name=license_data.get("licenseName"),
-                license_url=license_data.get("licenseURL"),
-                # Additional optional attributes
-                scope_details=license_data.get("scopeDetails"),
-                termination_conditions=license_data.get("terminationConditions"),
-                governance_specifics=license_data.get("governanceSpecifics"),
-                audit_terms=license_data.get("auditTerms"),
-                warranties=license_data.get("warranties"),
-                damages=license_data.get("damages"),
-                confidentiality_clauses=license_data.get("confidentialityClauses"),
+            instance.license = parse_license(product_data["license"])
+
+        if "paymentGateways" in product_data:
+            instance.payment_gateways = parse_payment_gateways(
+                product_data["paymentGateways"]
             )
 
         # Load extensions (x- prefixed fields)
-        extensions = SpecificationExtensions()
-        for key, value in product_data.items():
-            if key.startswith("x-"):
-                extensions.add_extension(key, value)
+        extensions = parse_extensions(product_data)
 
         if extensions.extensions:
             instance.extensions = extensions
@@ -849,70 +563,35 @@ class OpenDataProduct:
         result = {
             "schema": self.schema,
             "version": self.version,
-            "product": asdict(self.product_details),
+            "product": serialize_product_details(self.product_details),
         }
 
-        # Convert snake_case back to camelCase for spec compliance
         product = result["product"]
-        self._convert_snake_to_camel(product, self.PRODUCT_DETAILS_MAPPING)
 
         # Add optional components
         if self.product_strategy:
-            ps_dict = asdict(self.product_strategy)
-            self._convert_snake_to_camel(ps_dict, self.PRODUCT_STRATEGY_MAPPING)
-            # Convert nested KPI objects
-            if ps_dict.get("contributesToKPI"):
-                self._convert_snake_to_camel(ps_dict["contributesToKPI"], self.KPI_MAPPING)
-            if ps_dict.get("productKPIs"):
-                for kpi in ps_dict["productKPIs"]:
-                    self._convert_snake_to_camel(kpi, self.KPI_MAPPING)
-            if ps_dict.get("relatedKPIs"):
-                for kpi in ps_dict["relatedKPIs"]:
-                    self._convert_snake_to_camel(kpi, self.KPI_MAPPING)
-            product["productStrategy"] = ps_dict
+            product["productStrategy"] = serialize_product_strategy(
+                self.product_strategy
+            )
         if self.data_contract:
-            dc_dict = asdict(self.data_contract)
-            self._convert_snake_to_camel(dc_dict, self.DATA_CONTRACT_MAPPING)
-            product["dataContract"] = dc_dict
+            product["dataContract"] = serialize_data_contract(self.data_contract)
         if self.sla:
-            product["SLA"] = asdict(self.sla)
+            product["SLA"] = serialize_sla(self.sla)
         if self.data_quality:
-            product["dataQuality"] = asdict(self.data_quality)
+            product["dataQuality"] = serialize_data_quality(self.data_quality)
         if self.data_access:
-            da_dict = {"default": asdict(self.data_access.default)}
-            # Convert snake_case back to camelCase for spec compliance
-            self._convert_snake_to_camel(da_dict["default"], self.DATA_ACCESS_MAPPING)
-
-            # Add additional methods
-            for key, method in self.data_access.additional_methods.items():
-                method_dict = asdict(method)
-                self._convert_snake_to_camel(method_dict, self.DATA_ACCESS_MAPPING)
-                da_dict[key] = method_dict
-
-            product["dataAccess"] = da_dict
+            product["dataAccess"] = serialize_data_access(self.data_access)
         if self.license:
-            license_dict = asdict(self.license)
-            self._convert_snake_to_camel(license_dict, self.LICENSE_MAPPING)
-            product["license"] = license_dict
+            product["license"] = serialize_license(self.license)
         if self.data_holder:
-            dh_dict = asdict(self.data_holder)
-            self._convert_snake_to_camel(dh_dict, self.DATA_HOLDER_MAPPING)
-            product["dataHolder"] = dh_dict
+            product["dataHolder"] = serialize_data_holder(self.data_holder)
         if self.pricing_plans:
-            pp_dict = {"plans": []}
-            for plan in self.pricing_plans.plans:
-                plan_dict = asdict(plan)
-                self._convert_snake_to_camel(plan_dict, self.PRICING_PLAN_MAPPING)
-                pp_dict["plans"].append(plan_dict)
-            product["pricingPlans"] = pp_dict
+            product["pricingPlans"] = serialize_pricing_plans(self.pricing_plans)
 
         if self.payment_gateways:
-            pg_dict = {"gateways": []}
-            for gateway in self.payment_gateways.gateways:
-                gateway_dict = asdict(gateway)
-                self._convert_snake_to_camel(gateway_dict, self.PAYMENT_GATEWAY_MAPPING)
-                pg_dict["gateways"].append(gateway_dict)
-            product["paymentGateways"] = pg_dict
+            product["paymentGateways"] = serialize_payment_gateways(
+                self.payment_gateways
+            )
 
         # Add extensions (x- prefixed fields)
         if self.extensions:
@@ -923,12 +602,9 @@ class OpenDataProduct:
     def to_json(self, indent: int = 2) -> str:
         """Convert to JSON string with caching"""
         current_hash = self._generate_hash()
-        cache_key = f"json_{indent}"
+        cache_key = (current_hash, "json", indent)
 
-        if (
-            current_hash in self._serialization_cache
-            and cache_key in self._serialization_cache
-        ):
+        if cache_key in self._serialization_cache:
             return self._serialization_cache[cache_key]
 
         result = json.dumps(self.to_dict(), indent=indent, ensure_ascii=False)
@@ -938,12 +614,9 @@ class OpenDataProduct:
     def to_yaml(self) -> str:
         """Convert to YAML string with caching"""
         current_hash = self._generate_hash()
-        cache_key = "yaml"
+        cache_key = (current_hash, "yaml")
 
-        if (
-            current_hash in self._serialization_cache
-            and cache_key in self._serialization_cache
-        ):
+        if cache_key in self._serialization_cache:
             return self._serialization_cache[cache_key]
 
         result = yaml.dump(self.to_dict(), default_flow_style=False, allow_unicode=True)

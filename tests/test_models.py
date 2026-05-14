@@ -4,10 +4,20 @@ import pytest
 from dataclasses import FrozenInstanceError
 from typing import Dict, Any
 
-from odps.models import (
-    ProductDetails, UseCase, DataContract, SLA, DataQuality, 
-    PricingPlans, License, DataAccess, DataHolder, PaymentGateways,
-    DataAccessMethod, PricingPlan, PaymentGateway
+from open_data_products.odps.models import (
+    ProductDetails,
+    UseCase,
+    DataContract,
+    SLA,
+    DataQuality,
+    PricingPlans,
+    License,
+    DataAccess,
+    DataHolder,
+    PaymentGateways,
+    DataAccessMethod,
+    PricingPlan,
+    PaymentGateway,
 )
 
 
@@ -21,9 +31,9 @@ class TestProductDetails:
             product_id="test-001",
             visibility="public",
             status="draft",
-            type="dataset"
+            type="dataset",
         )
-        
+
         assert details.name == "Test Product"
         assert details.product_id == "test-001"
         assert details.visibility == "public"
@@ -32,11 +42,8 @@ class TestProductDetails:
 
     def test_full_product_details(self):
         """Test creating ProductDetails with many fields."""
-        use_case = UseCase(
-            title="Analytics Use Case",
-            description="For data analysis"
-        )
-        
+        use_case = UseCase(title="Analytics Use Case", description="For data analysis")
+
         details = ProductDetails(
             name="Complete Test Product",
             product_id="test-complete-001",
@@ -63,9 +70,9 @@ class TestProductDetails:
             version_notes="Bug fixes and improvements",
             content_sample="Sample data content",
             brand_slogan="Your data, your insights",
-            use_cases=[use_case]
+            use_cases=[use_case],
         )
-        
+
         assert details.name == "Complete Test Product"
         assert details.categories == ["analytics", "reporting"]
         assert details.language == ["en", "es"]
@@ -79,9 +86,9 @@ class TestProductDetails:
             product_id="defaults-001",
             visibility="public",
             status="draft",
-            type="dataset"
+            type="dataset",
         )
-        
+
         # Check defaults
         assert details.description is None
         assert details.categories == []
@@ -93,14 +100,14 @@ class TestProductDetails:
         """Test that ProductDetails validates inputs during creation."""
         # This tests that the dataclass accepts the inputs correctly
         # Since it's a simple dataclass, validation would be handled elsewhere
-        
+
         # Valid values should work
         details = ProductDetails(
             name="Valid Product",
             product_id="valid-001",
             visibility="public",
             status="production",
-            type="dataset"
+            type="dataset",
         )
         assert details is not None
 
@@ -110,11 +117,8 @@ class TestUseCase:
 
     def test_basic_use_case(self):
         """Test creating basic UseCase."""
-        use_case = UseCase(
-            title="Analytics",
-            description="Data analysis and reporting"
-        )
-        
+        use_case = UseCase(title="Analytics", description="Data analysis and reporting")
+
         assert use_case.title == "Analytics"
         assert use_case.description == "Data analysis and reporting"
         assert use_case.url is None
@@ -124,9 +128,9 @@ class TestUseCase:
         use_case = UseCase(
             title="ML Training",
             description="Machine learning model training",
-            url="https://example.com/ml-guide"
+            url="https://example.com/ml-guide",
         )
-        
+
         assert use_case.title == "ML Training"
         assert use_case.url == "https://example.com/ml-guide"
 
@@ -137,17 +141,16 @@ class TestDataContract:
     def test_basic_data_contract(self):
         """Test basic data contract."""
         contract = DataContract(
-            contract_url="https://example.com/schema.json",
-            type="ODCS"
+            contract_url="https://example.com/schema.json", type="ODCS"
         )
-        
+
         assert contract.contract_url == "https://example.com/schema.json"
         assert contract.type == "ODCS"
 
     def test_data_contract_defaults(self):
         """Test data contract with defaults."""
         contract = DataContract()
-        
+
         assert contract.id is None
         assert contract.type is None
         assert contract.contract_version is None
@@ -159,7 +162,7 @@ class TestDataAccessMethod:
     def test_data_access_method(self):
         """Test creating a data access method."""
         method = DataAccessMethod()
-        
+
         # DataAccessMethod exists and can be instantiated
         assert method is not None
 
@@ -169,11 +172,8 @@ class TestPricingPlan:
 
     def test_pricing_plan(self):
         """Test creating a pricing plan."""
-        plan = PricingPlan(
-            name="Basic Plan",
-            price_currency="USD"
-        )
-        
+        plan = PricingPlan(name="Basic Plan", price_currency="USD")
+
         assert plan.name == "Basic Plan"
         assert plan.price_currency == "USD"
         assert plan.price is None  # Optional field
@@ -184,10 +184,8 @@ class TestLicense:
 
     def test_license(self):
         """Test creating a license."""
-        license_obj = License(
-            scope_of_use="commercial"
-        )
-        
+        license_obj = License(scope_of_use="commercial")
+
         assert license_obj.scope_of_use == "commercial"
         assert license_obj.permanent is True  # Default value
         assert license_obj.exclusive is False  # Default value
@@ -198,11 +196,8 @@ class TestDataHolder:
 
     def test_data_holder(self):
         """Test creating a data holder."""
-        holder = DataHolder(
-            name="Data Corp",
-            email="contact@datacorp.com"
-        )
-        
+        holder = DataHolder(name="Data Corp", email="contact@datacorp.com")
+
         assert holder.name == "Data Corp"
         assert holder.email == "contact@datacorp.com"
         assert holder.url is None  # Optional field
@@ -216,24 +211,24 @@ class TestModelIntegration:
         use_cases = [
             UseCase(
                 title="Business Intelligence",
-                description="Generate business reports and dashboards"
+                description="Generate business reports and dashboards",
             ),
             UseCase(
-                title="Predictive Analytics", 
+                title="Predictive Analytics",
                 description="Build predictive models for forecasting",
-                url="https://example.com/forecasting"
-            )
+                url="https://example.com/forecasting",
+            ),
         ]
-        
+
         details = ProductDetails(
             name="Multi-Purpose Dataset",
             product_id="multi-001",
             visibility="public",
             status="production",
             type="dataset",
-            use_cases=use_cases
+            use_cases=use_cases,
         )
-        
+
         assert len(details.use_cases) == 2
         assert details.use_cases[0].title == "Business Intelligence"
         assert details.use_cases[1].url == "https://example.com/forecasting"
@@ -247,9 +242,9 @@ class TestModelIntegration:
             status="production",
             type="dataset",
             language=["en", "es", "fr", "de"],
-            geography="EU"
+            geography="EU",
         )
-        
+
         assert "en" in details.language
         assert "es" in details.language
         assert "fr" in details.language
@@ -277,9 +272,9 @@ class TestModelIntegration:
             standards=["ISO 8601", "ISO 3166"],
             product_version="2.1.0",
             version_notes="Added new customer segments and improved data quality",
-            brand_slogan="Data that drives decisions"
+            brand_slogan="Data that drives decisions",
         )
-        
+
         # Verify all fields are set correctly
         assert details.name == "Comprehensive Dataset"
         assert "analytics" in details.categories
@@ -296,20 +291,20 @@ class TestModelIntegration:
             product_id="test-001",
             visibility="public",
             status="draft",
-            type="dataset"
+            type="dataset",
         )
-        
+
         details2 = ProductDetails(
             name="Test",
-            product_id="test-001", 
+            product_id="test-001",
             visibility="public",
             status="draft",
-            type="dataset"
+            type="dataset",
         )
-        
+
         # Should be equal (dataclass provides __eq__)
         assert details1 == details2
-        
+
         # Should have proper string representation
         repr_str = repr(details1)
         assert "ProductDetails" in repr_str
@@ -319,7 +314,13 @@ class TestModelIntegration:
         """Test that all model classes can be instantiated."""
         models = [
             UseCase(title="Test", description="Test description"),
-            ProductDetails(name="Test", product_id="test", visibility="public", status="draft", type="dataset"),
+            ProductDetails(
+                name="Test",
+                product_id="test",
+                visibility="public",
+                status="draft",
+                type="dataset",
+            ),
             DataContract(),
             SLA(),
             DataQuality(),
@@ -332,7 +333,7 @@ class TestModelIntegration:
             PricingPlan(name="Test Plan", price_currency="USD"),
             PaymentGateway(name="Test Gateway", url="https://payments.example.com"),
         ]
-        
+
         # All models should instantiate without error
         for model in models:
             assert model is not None

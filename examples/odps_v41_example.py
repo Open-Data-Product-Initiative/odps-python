@@ -23,8 +23,8 @@ This example showcases the new features introduced in ODPS v4.1:
 - Enhanced $ref support for component referencing
 """
 
-from odps import OpenDataProduct
-from odps.models import (
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import (
     ProductDetails,
     ProductStrategy,
     KPI,

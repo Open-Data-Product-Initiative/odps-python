@@ -130,7 +130,7 @@ A comprehensive Python library for creating, validating, and manipulating Open D
 
 #### 🚀 Getting Started
 ```python
-from odps import OpenDataProduct, ProductDetails
+from open_data_products.odps import OpenDataProduct, ProductDetails
 
 # Create a new ODPS document
 product = ProductDetails(

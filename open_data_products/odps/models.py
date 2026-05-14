@@ -55,7 +55,7 @@ All models support:
 Example:
     Creating a complete ODPS document with multiple components:
 
-    >>> from odps.models import *
+    >>> from open_data_products.odps.models import *
     >>>
     >>> # Core product details
     >>> details = ProductDetails(

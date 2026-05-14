@@ -70,16 +70,18 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/accenture/odps-python"
-Documentation = "https://github.com/accenture/odps-python#readme"
-Repository = "https://github.com/accenture/odps-python"
-"Bug Tracker" = "https://github.com/accenture/odps-python/issues"
+Homepage = "https://github.com/Open-Data-Product-Initiative/odps-python"
+Documentation = "https://github.com/Open-Data-Product-Initiative/odps-python#readme"
+Repository = "https://github.com/Open-Data-Product-Initiative/odps-python"
+"Bug Tracker" = "https://github.com/Open-Data-Product-Initiative/odps-python/issues"
 
 [tool.setuptools]
 packages = [
     "open_data_products",
+    "open_data_products.odpc",
+    "open_data_products.odpg",
     "open_data_products.odps",
-    "odps",
+    "open_data_products.odpv",
 ]
 
 [tool.setuptools.dynamic]
@@ -113,7 +115,7 @@ filterwarnings = [
 ]
 
 [tool.coverage.run]
-source = ["open_data_products", "odps"]
+source = ["open_data_products"]
 branch = true
 omit = [
     "*/tests/*",

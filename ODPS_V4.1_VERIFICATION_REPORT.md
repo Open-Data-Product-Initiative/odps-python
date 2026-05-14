@@ -226,7 +226,7 @@ All modified Python files compile successfully:
 - ✅ All dependencies correct (PyYAML, pycountry, phonenumbers)
 - ✅ Python version support: 3.8+
 - ✅ Build system configured (setuptools)
-- ✅ Version management via `odps.__version__`
+- ✅ Version management via `open_data_products.__version__`
 
 **Status**: ✅ Ready for build
 

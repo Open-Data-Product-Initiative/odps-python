@@ -2,18 +2,18 @@
 
 ## Package Namespace
 
-New code should import ODPS APIs from `open_data_products.odps`:
+The SDK uses one namespace per Open Data Products standard:
+
+- `open_data_products.odps` for Open Data Product Specification
+- `open_data_products.odpc` for Open Data Product Catalog
+- `open_data_products.odpg` for Open Data Product Graph
+- `open_data_products.odpv` for Open Data Product Vocabulary
+
+Import ODPS APIs from `open_data_products.odps`:
 
 ```python
 from open_data_products.odps import OpenDataProduct
 from open_data_products.odps.models import ProductDetails
-```
-
-The historical `odps` namespace remains available for backward compatibility:
-
-```python
-from odps import OpenDataProduct
-from odps.models import ProductDetails
 ```
 
 ## Table of Contents
@@ -244,7 +244,7 @@ class ProductStrategy:
 **Example:**
 
 ```python
-from odps.models import ProductStrategy, KPI
+from open_data_products.odps.models import ProductStrategy, KPI
 
 strategy = ProductStrategy(
     objectives=[
@@ -318,7 +318,7 @@ class KPI:
 **Example:**
 
 ```python
-from odps.models import KPI
+from open_data_products.odps.models import KPI
 
 kpi = KPI(
     name="Customer Retention Rate",
@@ -494,7 +494,7 @@ class DataAccess:
 **v4.1 AI Agent Integration Example:**
 
 ```python
-from odps.models import DataAccess, DataAccessMethod
+from open_data_products.odps.models import DataAccess, DataAccessMethod
 
 # AI Agent Access - NEW in v4.1
 ai_agent_access = DataAccessMethod(
@@ -802,8 +802,8 @@ class KPIDirection(Enum):
 **Usage:**
 
 ```python
-from odps.models import KPI
-from odps.enums import KPIDirection
+from open_data_products.odps.models import KPI
+from open_data_products.odps.enums import KPIDirection
 
 kpi = KPI(
     name="Customer Retention Rate",
@@ -849,8 +849,8 @@ class KPIUnit(Enum):
 **Usage:**
 
 ```python
-from odps.models import KPI
-from odps.enums import KPIUnit
+from open_data_products.odps.models import KPI
+from open_data_products.odps.enums import KPIUnit
 
 kpi = KPI(
     name="Average Response Time",
@@ -876,8 +876,8 @@ class OutputPortType(Enum):
 **v4.1 AI Port Type Usage:**
 
 ```python
-from odps.models import DataAccessMethod
-from odps.enums import OutputPortType
+from open_data_products.odps.models import DataAccessMethod
+from open_data_products.odps.enums import OutputPortType
 
 ai_access = DataAccessMethod(
     output_port_type=OutputPortType.AI.value,  # or simply "AI"
@@ -959,8 +959,8 @@ ODPS v4.1 introduces groundbreaking features that connect data products to busin
 **The first open specification where data products declare not just what they are but also why they exist.**
 
 ```python
-from odps import OpenDataProduct
-from odps.models import ProductStrategy, KPI
+from open_data_products.odps import OpenDataProduct
+from open_data_products.odps.models import ProductStrategy, KPI
 
 product = OpenDataProduct(product_details)
 
@@ -990,7 +990,7 @@ product.product_strategy = ProductStrategy(
 Comprehensive KPI model with 10 fields for complete performance tracking:
 
 ```python
-from odps.models import KPI
+from open_data_products.odps.models import KPI
 
 kpi = KPI(
     name="Churn Prediction Accuracy",        # Required
@@ -1011,7 +1011,7 @@ kpi = KPI(
 Native support for AI agents via Model Context Protocol (MCP):
 
 ```python
-from odps.models import DataAccessMethod
+from open_data_products.odps.models import DataAccessMethod
 
 ai_access = DataAccessMethod(
     output_port_type="AI",           # New AI output port type
@@ -1050,7 +1050,7 @@ sla = SLA(
 #### 5. New Enumerations
 
 ```python
-from odps.enums import KPIDirection, KPIUnit, OutputPortType
+from open_data_products.odps.enums import KPIDirection, KPIUnit, OutputPortType
 
 # KPI Direction (5 values)
 KPIDirection.INCREASE

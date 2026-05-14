@@ -1,7 +1,7 @@
 # Open Data Products Python SDK
 
 [![PyPI version](https://badge.fury.io/py/odps-python.svg)](https://badge.fury.io/py/odps-python)
-[![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/accenture/odps-python)
+[![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 A comprehensive, high-performance Python library for creating, validating, and manipulating [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) documents with full international standards compliance.
@@ -53,7 +53,7 @@ pip install "open-data-products[validation]"
 pip install "open-data-products[dev]"
 ```
 
-Existing ODPS users can continue importing from `odps` during the compatibility period. New code should prefer `open_data_products.odps` because the SDK is expanding to support the broader OpenDataProducts.org standards family.
+Use `open_data_products.<spec>` namespaces for all standards. ODPS is available under `open_data_products.odps`; ODPC, ODPG, and ODPV modules are reserved for the catalog, graph, and vocabulary capabilities as they are added.
 
 ## Quick Start
 
@@ -201,7 +201,7 @@ The library includes sophisticated caching for optimal performance:
 
 ```python
 import time
-from odps import OpenDataProduct, ProductDetails
+from open_data_products.odps import OpenDataProduct, ProductDetails
 
 # Create a product
 details = ProductDetails(
@@ -240,7 +240,7 @@ component_count = product.component_count
 ### Custom Validation
 
 ```python
-from odps.validators import ODPSValidator
+from open_data_products.odps.validators import ODPSValidator
 
 # Validate individual components
 print(ODPSValidator.validate_iso639_language_code("en"))  # True
@@ -267,7 +267,7 @@ odp = OpenDataProduct.from_file("product.yaml")
 ## Development
 
 ```bash
-git clone https://github.com/accenture/odps-python
+git clone https://github.com/Open-Data-Product-Initiative/odps-python
 cd odps-python
 pip install -e ".[dev]"
 python examples/comprehensive_example.py
