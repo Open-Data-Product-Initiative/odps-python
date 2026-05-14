@@ -49,35 +49,22 @@ requires-python = ">=3.8"
 dependencies = [
     "PyYAML>=6.0.2",
     "jsonschema>=4.0",
-    "pycountry>=24.6.1",
-    "phonenumbers>=9.0.11",
 ]
 
 [project.scripts]
+# Unified CLI. Subcommands: validate, explain, refs, resources, summary,
+# manifest, serve. The MCP server runs via `open-data-products serve`.
 open-data-products = "open_data_products.cli:main"
-open-data-products-odpc-explain = "open_data_products.odpc.cli:explain_main"
-open-data-products-odpc-search = "open_data_products.odpc.cli:search_main"
-open-data-products-odpc-validate = "open_data_products.odpc.cli:validate_main"
+# Retained: emits a standalone HTML graph explorer; not yet a subcommand.
 open-data-products-odpg-generate = "open_data_products.odpg.cli:generate_main"
-open-data-products-odpg-search = "open_data_products.odpg.cli:search_main"
-open-data-products-odpg-validate = "open_data_products.odpg.cli:validate_main"
-open-data-products-odpv-generate = "open_data_products.odpv.cli:generate_main"
-open-data-products-odpv-search = "open_data_products.odpv.cli:search_main"
-open-data-products-odpv-validate = "open_data_products.odpv.cli:validate_main"
 
 [project.optional-dependencies]
-validation = [
-    "pycountry>=24.6.1",
-    "phonenumbers>=9.0.11",
-]
 dev = [
     "pytest>=6.0",
     "pytest-cov>=3.0.0",
     "black>=22.0",
     "flake8>=4.0",
     "mypy>=0.991",
-    "pycountry>=24.6.1",
-    "phonenumbers>=9.0.11",
     "build>=0.8.0",
     "twine>=4.0.0",
 ]
