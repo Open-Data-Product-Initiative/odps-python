@@ -1,0 +1,810 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://opendataproducts.org/odpc-v1.0/schema/odpc.yaml",
+  "title": "ODPC 1.0 Catalog Schema",
+  "description": "Schema for Open Data Product Catalogs (ODPC) catalog files.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "version",
+    "kind",
+    "catalog"
+  ],
+  "properties": {
+    "schema": {
+      "type": "string",
+      "format": "uri",
+      "const": "https://opendataproducts.org/odpc-v1.0/schema/odpc.yaml",
+      "description": "URI of the ODPC schema used to validate the catalog file."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^1\\.0$",
+      "description": "ODPC specification version used by the catalog file."
+    },
+    "kind": {
+      "type": "string",
+      "const": "Catalog",
+      "description": "ODPC root object type. Catalog files MUST use Catalog."
+    },
+    "catalog": {
+      "$ref": "#/$defs/Catalog"
+    }
+  },
+  "$defs": {
+    "LanguageString": {
+      "type": "object",
+      "description": "Language-tagged human-readable text. English is required; other BCP 47-like language keys may be added.",
+      "required": [
+        "en"
+      ],
+      "properties": {
+        "en": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "patternProperties": {
+        "^[a-z]{2}(-[A-Z]{2})?$": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "additionalProperties": false
+    },
+    "ExtensionProperties": {
+      "patternProperties": {
+        "^x-": {
+          "description": "Implementation-specific extension property."
+        }
+      }
+    },
+    "Owner": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "organization": {
+          "type": "string"
+        },
+        "team": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "GraphReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "standard",
+        "version",
+        "$ref"
+      ],
+      "properties": {
+        "standard": {
+          "type": "string",
+          "enum": [
+            "ODPG",
+            "RDF",
+            "JSON-LD",
+            "GraphML",
+            "openCypher",
+            "GQL",
+            "Gremlin",
+            "GraphSON",
+            "GeoSPARQL"
+          ]
+        },
+        "version": {
+          "type": "string"
+        },
+        "$ref": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "ProductModel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "standard",
+        "version",
+        "format",
+        "$ref"
+      ],
+      "properties": {
+        "standard": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "yaml",
+            "json",
+            "html",
+            "markdown",
+            "api",
+            "other"
+          ]
+        },
+        "$ref": {
+          "type": "string"
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "ProductReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "productID",
+        "productVersion",
+        "name",
+        "description",
+        "productModel"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "productID": {
+          "type": "string",
+          "minLength": 1
+        },
+        "productVersion": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "valueProposition": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "restricted",
+            "private"
+          ]
+        },
+        "status": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "categories": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "portfolioPriority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "governanceProfile": {
+          "type": "string"
+        },
+        "owner": {
+          "$ref": "#/$defs/Owner"
+        },
+        "productModel": {
+          "$ref": "#/$defs/ProductModel"
+        },
+        "logoURL": {
+          "type": "string",
+          "format": "uri"
+        },
+        "outputFileFormats": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "UseCase": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stakeholders": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "businessChallenge": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "decision": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "expectedOutcome": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "kpis": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "impactMetrics": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "dataNeeds": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "summary": {
+              "$ref": "#/$defs/LanguageString"
+            },
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "scoring": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "businessValue": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            },
+            "effort": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high"
+              ]
+            },
+            "category": {
+              "type": "string",
+              "enum": [
+                "quickWins",
+                "juicyAndWorthIt",
+                "niceToHave",
+                "avoidOrDefer"
+              ]
+            },
+            "score": {
+              "type": "number"
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "paused",
+            "completed",
+            "retired"
+          ]
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "KPI": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "unit": {
+          "type": "string"
+        },
+        "baseline": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "date": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "number"
+            },
+            "date": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "BusinessObjective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "strategicAlignment": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LanguageString"
+          }
+        },
+        "owner": {
+          "$ref": "#/$defs/Owner"
+        },
+        "expectedOutcomes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/LanguageString"
+          }
+        },
+        "kpis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/KPI"
+          }
+        },
+        "timeframe": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "startDate": {
+              "type": "string",
+              "format": "date"
+            },
+            "endDate": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "paused",
+            "completed",
+            "retired"
+          ]
+        },
+        "priority": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "Signal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description",
+        "type",
+        "source",
+        "observedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "demand",
+            "competitive",
+            "market",
+            "technology",
+            "policy",
+            "operational",
+            "quality",
+            "usage",
+            "risk",
+            "gap"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "origin",
+            "method"
+          ],
+          "properties": {
+            "origin": {
+              "type": "string",
+              "enum": [
+                "internal",
+                "external",
+                "mixed"
+              ]
+            },
+            "method": {
+              "type": "string"
+            },
+            "system": {
+              "type": "string"
+            },
+            "channel": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "observedAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "strength": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "enum": [
+            "low",
+            "medium",
+            "high"
+          ]
+        },
+        "opportunity": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "impact": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "valuePotential": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            },
+            "urgency": {
+              "type": "string",
+              "enum": [
+                "low",
+                "medium",
+                "high",
+                "critical"
+              ]
+            },
+            "affectedDomains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "evidence": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "summary": {
+              "$ref": "#/$defs/LanguageString"
+            },
+            "examples": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "recommendedAction": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "new",
+            "reviewing",
+            "accepted",
+            "rejected",
+            "converted",
+            "archived"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "CatalogMeta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "description": {
+          "$ref": "#/$defs/LanguageString"
+        },
+        "owner": {
+          "$ref": "#/$defs/Owner"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "geography": {
+              "type": "string"
+            },
+            "audience": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "patternProperties": {
+            "^x-": {}
+          }
+        },
+        "version": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "draft",
+            "active",
+            "deprecated",
+            "retired"
+          ]
+        },
+        "graph": {
+          "$ref": "#/$defs/GraphReference"
+        },
+        "tags": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "Catalog": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "metadata"
+      ],
+      "properties": {
+        "metadata": {
+          "$ref": "#/$defs/CatalogMeta"
+        },
+        "productReferences": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ProductReference"
+          }
+        },
+        "useCases": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/UseCase"
+          }
+        },
+        "businessObjectives": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/BusinessObjective"
+          }
+        },
+        "signals": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Signal"
+          }
+        }
+      },
+      "patternProperties": {
+        "^x-": {}
+      }
+    }
+  }
+}

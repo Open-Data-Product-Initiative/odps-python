@@ -48,11 +48,15 @@ classifiers = [
 requires-python = ">=3.8"
 dependencies = [
     "PyYAML>=6.0.2",
+    "jsonschema>=4.0",
     "pycountry>=24.6.1",
     "phonenumbers>=9.0.11",
 ]
 
 [project.scripts]
+open-data-products-odpc-explain = "open_data_products.odpc.cli:explain_main"
+open-data-products-odpc-search = "open_data_products.odpc.cli:search_main"
+open-data-products-odpc-validate = "open_data_products.odpc.cli:validate_main"
 open-data-products-odpv-generate = "open_data_products.odpv.cli:generate_main"
 open-data-products-odpv-search = "open_data_products.odpv.cli:search_main"
 open-data-products-odpv-validate = "open_data_products.odpv.cli:validate_main"
@@ -84,6 +88,9 @@ Repository = "https://github.com/Open-Data-Product-Initiative/odps-python"
 packages = [
     "open_data_products",
     "open_data_products.odpc",
+    "open_data_products.odpc.data",
+    "open_data_products.odpc.data.catalog",
+    "open_data_products.odpc.data.schema",
     "open_data_products.odpg",
     "open_data_products.odps",
     "open_data_products.odpv",
@@ -92,6 +99,11 @@ packages = [
 ]
 
 [tool.setuptools.package-data]
+"open_data_products.odpc" = [
+    "data/catalog/*.jsonl",
+    "data/schema/*.json",
+    "data/schema/*.yaml",
+]
 "open_data_products.odpv" = [
     "data/vocab/*.json",
     "data/vocab/*.jsonl",

@@ -4,7 +4,7 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/) plus ODPV vocabulary tools, and provides package structure for ODPC and ODPG capabilities as they are added.
+A Python SDK for the OpenDataProducts.org standards family. The library currently implements [Open Data Product Specification (ODPS) v4.1](https://opendataproducts.org/v4.1/), ODPC catalog helpers, and ODPV vocabulary tools, with package structure for ODPG capabilities as they are added.
 
 ## Package Structure
 
@@ -13,7 +13,7 @@ Use `open_data_products.<spec>` namespaces for every standard:
 | Namespace | Standard | Status |
 |-----------|----------|--------|
 | `open_data_products.odps` | Open Data Product Specification | Implemented |
-| `open_data_products.odpc` | Open Data Product Catalog | Namespace reserved |
+| `open_data_products.odpc` | Open Data Product Catalog | Catalog helpers implemented |
 | `open_data_products.odpg` | Open Data Product Graph | Namespace reserved |
 | `open_data_products.odpv` | Open Data Product Vocabulary | Vocabulary tools implemented |
 
@@ -31,6 +31,11 @@ The package intentionally does not expose a standalone `odps` import path. New w
 - **Vocabulary search**: Search bundled ODPV terms from Python or the command line
 - **Vocabulary validation**: Check vocabulary structure and expected term/relationship counts
 - **Artifact generation**: Generate `odpv.json`, `terms.jsonl`, and section YAML artifacts from the bundled canonical vocabulary
+
+### ODPC catalog tools
+- **Catalog validation**: Validate ODPC YAML or JSON catalog files against the bundled schema
+- **Catalog explanation**: Summarize catalog metadata, object counts, graph references, and hints for humans and AI agents
+- **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
 
 ### Core Capabilities
 - **Complete ODPS v4.1 Support**: Full implementation of the latest Open Data Product Specification
@@ -299,6 +304,39 @@ open-data-products-odpv-search "customer churn" --limit 3
 open-data-products-odpv-validate
 open-data-products-odpv-generate ./generated-vocab
 open-data-products-odpv-generate ./generated-vocab --check
+```
+
+### ODPC Catalogs
+
+```python
+from open_data_products.odpc import explain_catalog, search_objects, validate_catalog
+
+matches = search_objects(object_id="ProductReference")
+print(matches[0]["definition"])
+
+catalog = {
+    "schema": "https://opendataproducts.org/odpc-v1.0/schema/odpc.yaml",
+    "version": "1.0",
+    "kind": "Catalog",
+    "catalog": {
+        "metadata": {
+            "id": "CAT-001",
+            "name": {"en": "Urban Mobility Data Product Catalog"},
+            "description": {"en": "Catalog of urban mobility data products."},
+        }
+    },
+}
+
+print(validate_catalog(catalog).valid)
+print(explain_catalog(catalog))
+```
+
+Command line helpers are available after installation:
+
+```bash
+open-data-products-odpc-search demand
+open-data-products-odpc-explain catalog.yaml
+open-data-products-odpc-validate catalog.yaml
 ```
 
 ## Development
