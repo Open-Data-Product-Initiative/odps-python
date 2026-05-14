@@ -6,7 +6,14 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK and agent toolkit for the OpenDataProducts.org standards family. The library provides one unified Agent API for loading, detecting, validating, explaining, and traversing ODPS, ODPC, ODPG, and ODPV documents, plus spec-specific helpers for each standard.
+A Python SDK and agent toolkit for the OpenDataProducts.org standards family. The library provides one unified Agent API for loading, detecting, validating, explaining, and traversing: 
+
+* [Open Data Product Specification (ODPS)](https://opendataproducts.org/v4.1/), 
+* [Open Data Product Catalog (ODPC)](https://opendataproducts.org/odpc-v1.0/), 
+* [Open Data Product Graphs (ODPG)](https://opendataproducts.org/odpg-v1.0/), and 
+* [Open Data Product Vocabulary (ODPV)](https://opendataproducts.org/odpv-v1.0/) documents, 
+
+plus spec-specific helpers for each standard.
 
 ## Agent API
 
