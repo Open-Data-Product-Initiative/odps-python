@@ -11,6 +11,13 @@ _PACKAGE_ROOT = Path(__file__).resolve().parent
 
 _RESOURCES = [
     Resource(
+        id="odps.schema.json",
+        spec="odps",
+        type="schema",
+        path=str(_PACKAGE_ROOT / "odps" / "data" / "schema" / "odps.json"),
+        description="Bundled ODPS v4.1 data product schema in JSON format.",
+    ),
+    Resource(
         id="odpc.schema.yaml",
         spec="odpc",
         type="schema",

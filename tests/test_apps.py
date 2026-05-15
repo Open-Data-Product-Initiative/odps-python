@@ -6,8 +6,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+import yaml
+
 from tests.test_agent_api import sample_odps_product
-from open_data_products.odps.models import PricingPlan, PricingPlans
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -38,23 +39,46 @@ pricing_402_builder = load_app_module(
 
 def sample_priced_product():
     """Return a sample ODPS product with a pricing plan."""
-    product = sample_odps_product()
-    product.pricing_plans = PricingPlans(
-        plans=[
-            PricingPlan(
-                name={"en": "Starter"},
-                price_currency="USD",
-                price=5.00,
-                billing_duration="month",
-            )
-        ]
-    )
+    return {
+        "schema": "https://opendataproducts.org/v4.1/schema/odps.json",
+        "version": "4.1",
+        "product": {
+            "details": {
+                "en": {
+                    "name": "Agent Ready Product",
+                    "productID": "agent-ready-product",
+                    "visibility": "public",
+                    "status": "production",
+                    "type": "dataset",
+                }
+            },
+            "pricingPlans": {
+                "declarative": {
+                    "en": [
+                        {
+                            "name": "Starter",
+                            "priceCurrency": "USD",
+                            "price": "5.0",
+                            "billingDuration": "month",
+                            "unit": "Recurring",
+                        }
+                    ]
+                }
+            },
+        },
+    }
+
+
+def sample_free_product():
+    """Return a canonical ODPS product without pricing."""
+    product = sample_priced_product()
+    product["product"].pop("pricingPlans")
     return product
 
 
 def test_document_inspector_prints_human_report(tmp_path, capsys):
     path = tmp_path / "product.yaml"
-    path.write_text(sample_odps_product().to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(sample_free_product()), encoding="utf-8")
 
     assert inspector.main([str(path)]) == 0
 
@@ -70,7 +94,7 @@ def test_document_inspector_prints_human_report(tmp_path, capsys):
 
 def test_document_inspector_prints_json_report(tmp_path, capsys):
     path = tmp_path / "product.yaml"
-    path.write_text(sample_odps_product().to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(sample_free_product()), encoding="utf-8")
 
     assert inspector.main([str(path), "--json"]) == 0
 
@@ -161,7 +185,7 @@ def test_vocabulary_finder_runs_as_script_from_repo_root():
 
 def test_pricing_402_builder_prints_human_envelope(tmp_path, capsys):
     path = tmp_path / "priced-product.yaml"
-    path.write_text(sample_priced_product().to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(sample_priced_product()), encoding="utf-8")
 
     assert pricing_402_builder.main([str(path)]) == 0
 
@@ -178,7 +202,7 @@ def test_pricing_402_builder_prints_human_envelope(tmp_path, capsys):
 
 def test_pricing_402_builder_prints_json_envelope(tmp_path, capsys):
     path = tmp_path / "priced-product.yaml"
-    path.write_text(sample_priced_product().to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(sample_priced_product()), encoding="utf-8")
 
     assert pricing_402_builder.main([str(path), "--json"]) == 0
 
@@ -194,7 +218,7 @@ def test_pricing_402_builder_prints_json_envelope(tmp_path, capsys):
 
 def test_pricing_402_builder_returns_one_without_pricing(tmp_path, capsys):
     path = tmp_path / "free-product.yaml"
-    path.write_text(sample_odps_product().to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(sample_free_product()), encoding="utf-8")
 
     assert pricing_402_builder.main([str(path), "--json"]) == 1
 
@@ -205,9 +229,11 @@ def test_pricing_402_builder_returns_one_without_pricing(tmp_path, capsys):
 
 def test_pricing_402_builder_returns_one_for_invalid_product(tmp_path, capsys):
     product = sample_priced_product()
-    product.pricing_plans.plans[0].price_currency = "INVALID"
+    product["product"]["pricingPlans"]["declarative"]["en"][0][
+        "priceCurrency"
+    ] = "INVALID"
     path = tmp_path / "invalid-product.yaml"
-    path.write_text(product.to_yaml(), encoding="utf-8")
+    path.write_text(yaml.safe_dump(product), encoding="utf-8")
 
     assert pricing_402_builder.main([str(path)]) == 1
 

@@ -87,6 +87,8 @@ packages = [
     "open_data_products.odpg.data.graph",
     "open_data_products.odpg.data.schema",
     "open_data_products.odps",
+    "open_data_products.odps.data",
+    "open_data_products.odps.data.schema",
     "open_data_products.odpv",
     "open_data_products.odpv.data",
     "open_data_products.odpv.data.vocab",
@@ -103,6 +105,9 @@ packages = [
     "data/graph/*.yaml",
     "data/schema/*.json",
     "data/schema/*.yaml",
+]
+"open_data_products.odps" = [
+    "data/schema/*.json",
 ]
 "open_data_products.odpv" = [
     "data/vocab/*.json",

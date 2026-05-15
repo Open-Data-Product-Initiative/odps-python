@@ -18,6 +18,8 @@ from open_data_products.odps import OpenDataProduct
 from open_data_products.odps.models import DataAccessMethod, ProductDetails
 from open_data_products.odpv import load_vocabulary
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 
 def sample_odps_product():
     product = OpenDataProduct(
@@ -40,11 +42,10 @@ def sample_odps_product():
 
 
 def test_unified_load_validate_and_explain_odps(tmp_path):
-    path = tmp_path / "product.yaml"
-    path.write_text(sample_odps_product().to_yaml(), encoding="utf-8")
+    path = REPO_ROOT / "apps" / "pricing_402_builder" / "priced_product.yaml"
 
     loaded = load_document(path)
-    result = validate_document(loaded)
+    result = validate_document(path)
     summary = explain_document(loaded, path=path)
 
     assert isinstance(loaded, OpenDataProduct)
@@ -124,8 +125,7 @@ def test_unified_validate_and_explain_odpv():
 
 
 def test_top_level_cli_json_validate_and_explain(tmp_path, capsys):
-    path = tmp_path / "product.json"
-    path.write_text(sample_odps_product().to_json(), encoding="utf-8")
+    path = REPO_ROOT / "apps" / "pricing_402_builder" / "priced_product.yaml"
 
     assert main(["validate", str(path), "--json"]) == 0
     validate_payload = json.loads(capsys.readouterr().out)
@@ -138,8 +138,35 @@ def test_top_level_cli_json_validate_and_explain(tmp_path, capsys):
     assert "Agent Ready Product" in explain_payload["summary"]
 
 
+def test_unified_validate_rejects_legacy_flat_odps_file(tmp_path):
+    path = tmp_path / "legacy-flat-product.yaml"
+    path.write_text(
+        yaml.safe_dump(
+            {
+                "schema": "https://opendataproducts.org/v4.1/schema/odps.json",
+                "version": "4.1",
+                "product": {
+                    "name": "Agent Ready Product",
+                    "productID": "agent-ready-product",
+                    "visibility": "public",
+                    "status": "production",
+                    "type": "dataset",
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    result = validate_document(path)
+
+    assert result.valid is False
+    assert result.spec == "odps"
+    assert any("product/details" in error for error in result.errors)
+
+
 def test_top_level_cli_resources_json(capsys):
     assert main(["resources", "--json"]) == 0
 
     payload = json.loads(capsys.readouterr().out)
     assert any(resource["id"] == "odpc.schema.yaml" for resource in payload)
+    assert any(resource["id"] == "odps.schema.json" for resource in payload)

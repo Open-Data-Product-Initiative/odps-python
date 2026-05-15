@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from jsonschema import Draft202012Validator
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
@@ -16,6 +17,9 @@ from .odpv import load_vocabulary, validate_vocabulary
 from .results import Reference, ValidationResult
 
 Document = Union[OpenDataProduct, Dict[str, Any]]
+_ODPS_SCHEMA_PATH = (
+    Path(__file__).resolve().parent / "odps" / "data" / "schema" / "odps.json"
+)
 
 
 def load_document(path: Union[str, Path]) -> Document:
@@ -67,6 +71,9 @@ def validate_document(
     spec, kind = detect_document(loaded)
 
     if spec == "odps":
+        raw_errors = _validate_raw_odps_document(document, path)
+        if raw_errors:
+            return ValidationResult(False, spec, kind, raw_errors, path=source_path)
         try:
             assert isinstance(loaded, OpenDataProduct)
             loaded.validate()
@@ -236,6 +243,86 @@ def _load_mapping(path: Path) -> Dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError("Document must contain an object at the root")
     return data
+
+
+def _validate_raw_odps_document(
+    document: Union[Document, str, Path],
+    path: Optional[Union[str, Path]],
+) -> List[str]:
+    raw = _raw_mapping(document, path)
+    if raw is None:
+        return []
+    if not _is_odps_v41(raw):
+        return []
+
+    schema = json.loads(_ODPS_SCHEMA_PATH.read_text(encoding="utf-8"))
+    validator = Draft202012Validator(schema)
+    errors = sorted(validator.iter_errors(raw), key=lambda error: list(error.path))
+    return _validate_odps_v41_shape(raw) + [
+        _format_schema_error(error) for error in errors
+    ]
+
+
+def _is_odps_v41(document: Dict[str, Any]) -> bool:
+    schema = str(document.get("schema", "")).lower()
+    version = str(document.get("version", ""))
+    return "v4.1" in schema or version in {"4.1", "v4.1"}
+
+
+def _validate_odps_v41_shape(document: Dict[str, Any]) -> List[str]:
+    product = document.get("product")
+    if not isinstance(product, dict):
+        return []
+
+    errors = []
+    details = product.get("details")
+    if not isinstance(details, dict) or not details:
+        errors.append(
+            "/product/details: ODPS v4.1 data products must define "
+            "language-keyed details such as /product/details/en"
+        )
+
+    legacy_detail_fields = {"name", "productID", "visibility", "status", "type"}
+    legacy_fields = sorted(legacy_detail_fields.intersection(product))
+    if legacy_fields:
+        errors.append(
+            "/product: move legacy flat detail fields into "
+            f"/product/details/<language>: {', '.join(legacy_fields)}"
+        )
+
+    pricing_plans = product.get("pricingPlans")
+    if isinstance(pricing_plans, dict) and "plans" in pricing_plans:
+        errors.append(
+            "/product/pricingPlans: ODPS v4.1 pricing plans must use "
+            "declarative or executable, not plans"
+        )
+
+    if "dataContract" in product:
+        errors.append("/product/dataContract: ODPS v4.1 uses /product/contract")
+
+    return errors
+
+
+def _raw_mapping(
+    document: Union[Document, str, Path],
+    path: Optional[Union[str, Path]],
+) -> Optional[Dict[str, Any]]:
+    if isinstance(document, (str, Path)):
+        return _load_mapping(Path(document))
+    if isinstance(document, dict):
+        return document
+    if path is not None:
+        return _load_mapping(Path(path))
+    return None
+
+
+def _format_schema_error(error: Any) -> str:
+    path = "/".join(str(part) for part in error.absolute_path)
+    pointer = f"/{path}" if path else "/"
+    if error.validator == "required":
+        missing = ", ".join(str(item) for item in error.validator_value)
+        return f"{pointer}: required fields missing or invalid; expected {missing}"
+    return f"{pointer}: {error.message}"
 
 
 def _walk_references(value: Any, pointer: str = "") -> Iterable[Tuple[str, str, Any]]:

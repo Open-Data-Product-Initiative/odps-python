@@ -18,6 +18,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 # --- Instruction Files ------------------------------------------------------
 # https://agenticpatterns.veso.ai/instruction-files
 
+
 class TestInstructionFiles:
     def test_agents_md_exists(self):
         assert (REPO_ROOT / "AGENTS.md").exists(), "Missing AGENTS.md at repo root"
@@ -93,7 +94,9 @@ class TestMCPToolDefinitions:
             assert tool["description"], f"{tool['name']}: missing description"
             schema = tool["inputSchema"]
             assert schema["type"] == "object", f"{tool['name']}: inputSchema not object"
-            assert "properties" in schema, f"{tool['name']}: inputSchema missing properties"
+            assert (
+                "properties" in schema
+            ), f"{tool['name']}: inputSchema missing properties"
             assert callable(tool["handler"]), f"{tool['name']}: handler not callable"
 
     def test_expected_tools_present(self):
@@ -115,20 +118,21 @@ class TestMCPToolDefinitions:
 
     def test_validate_document_tool_works_end_to_end(self, tmp_path):
         from open_data_products.mcp.tools import TOOLS
-        from open_data_products.odps import OpenDataProduct
-        from open_data_products.odps.models import ProductDetails
 
-        product = OpenDataProduct(
-            ProductDetails(
-                name="X",
-                product_id="x",
-                visibility="public",
-                status="production",
-                type="dataset",
-            )
-        )
         path = tmp_path / "p.yaml"
-        path.write_text(product.to_yaml(), encoding="utf-8")
+        path.write_text(
+            "schema: https://opendataproducts.org/v4.1/schema/odps.json\n"
+            "version: '4.1'\n"
+            "product:\n"
+            "  details:\n"
+            "    en:\n"
+            "      name: X\n"
+            "      productID: x\n"
+            "      visibility: public\n"
+            "      status: production\n"
+            "      type: dataset\n",
+            encoding="utf-8",
+        )
 
         tool = next(t for t in TOOLS if t["name"] == "validate_document")
         result = tool["handler"]({"path": str(path)})
@@ -163,9 +167,9 @@ class TestAgentManifest:
         from open_data_products.mcp.manifest import generate_agent_manifest
 
         for tool in generate_agent_manifest()["tools"]:
-            assert tool["class"] in VALID_TOOL_CLASSES, (
-                f"{tool['name']}: class must be one of {VALID_TOOL_CLASSES}"
-            )
+            assert (
+                tool["class"] in VALID_TOOL_CLASSES
+            ), f"{tool['name']}: class must be one of {VALID_TOOL_CLASSES}"
 
     def test_manifest_includes_inputschema_per_tool(self):
         from open_data_products.mcp.manifest import generate_agent_manifest
@@ -175,6 +179,7 @@ class TestAgentManifest:
 
 
 # --- ARWS: enum semantic verbosity ------------------------------------------
+
 
 class TestEnumSemanticVerbosity:
     def test_product_status_descriptions(self):
@@ -200,6 +205,7 @@ class TestEnumSemanticVerbosity:
 
 # --- Context Management: artifact references --------------------------------
 # https://agenticpatterns.veso.ai/context-management
+
 
 class TestLoadSummary:
     def test_load_summary_returns_lightweight_metadata(self, tmp_path):
@@ -231,6 +237,7 @@ class TestLoadSummary:
 # --- Agent Payments (HTTP 402) ----------------------------------------------
 # https://agenticpatterns.veso.ai/agent-payments
 
+
 class TestPricing402:
     def test_helper_exists(self):
         from open_data_products.pricing import pricing_to_402
@@ -239,7 +246,11 @@ class TestPricing402:
 
     def test_emits_402_status_and_payment_headers(self):
         from open_data_products.odps import OpenDataProduct
-        from open_data_products.odps.models import PricingPlan, PricingPlans, ProductDetails
+        from open_data_products.odps.models import (
+            PricingPlan,
+            PricingPlans,
+            ProductDetails,
+        )
         from open_data_products.pricing import pricing_to_402
 
         product = OpenDataProduct(
@@ -287,6 +298,7 @@ class TestPricing402:
 
 
 # --- CLI consolidation: manifest subcommand ---------------------------------
+
 
 class TestCLIManifest:
     def test_manifest_subcommand(self, capsys):
