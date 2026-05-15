@@ -1,0 +1,18 @@
+schema: https://opendataproducts.org/v4.1/schema/odps.json
+version: "4.1"
+product:
+  details:
+    en:
+      name: Agent Ready Product
+      productID: agent-ready-product
+      visibility: public
+      status: production
+      type: dataset
+  pricingPlans:
+    declarative:
+      en:
+        - name: Starter
+          priceCurrency: USD
+          price: "5.0"
+          billingDuration: month
+          unit: Recurring

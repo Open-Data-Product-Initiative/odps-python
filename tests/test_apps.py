@@ -7,6 +7,7 @@ import sys
 from pathlib import Path
 
 from tests.test_agent_api import sample_odps_product
+from open_data_products.odps.models import PricingPlan, PricingPlans
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 
@@ -29,6 +30,26 @@ vocabulary_finder = load_app_module(
     "vocabulary_finder_cli",
     Path("apps") / "vocabulary_finder" / "cli.py",
 )
+pricing_402_builder = load_app_module(
+    "pricing_402_builder_cli",
+    Path("apps") / "pricing_402_builder" / "cli.py",
+)
+
+
+def sample_priced_product():
+    """Return a sample ODPS product with a pricing plan."""
+    product = sample_odps_product()
+    product.pricing_plans = PricingPlans(
+        plans=[
+            PricingPlan(
+                name={"en": "Starter"},
+                price_currency="USD",
+                price=5.00,
+                billing_duration="month",
+            )
+        ]
+    )
+    return product
 
 
 def test_document_inspector_prints_human_report(tmp_path, capsys):
@@ -81,9 +102,12 @@ def test_document_inspector_runs_as_script_from_repo_root():
 
 
 def test_vocabulary_finder_prints_human_matches(capsys):
-    assert vocabulary_finder.main(
-        ["customer churn reusable data offering", "--limit", "2"]
-    ) == 0
+    assert (
+        vocabulary_finder.main(
+            ["customer churn reusable data offering", "--limit", "2"]
+        )
+        == 0
+    )
 
     output = capsys.readouterr().out
     assert "ODPV Vocabulary Finder" in output
@@ -133,3 +157,77 @@ def test_vocabulary_finder_runs_as_script_from_repo_root():
     assert completed.returncode == 0
     assert "ODPV Vocabulary Finder" in completed.stdout
     assert "DataProduct" in completed.stdout
+
+
+def test_pricing_402_builder_prints_human_envelope(tmp_path, capsys):
+    path = tmp_path / "priced-product.yaml"
+    path.write_text(sample_priced_product().to_yaml(), encoding="utf-8")
+
+    assert pricing_402_builder.main([str(path)]) == 0
+
+    output = capsys.readouterr().out
+    assert "ODPS Pricing 402 Builder" in output
+    assert "Path: " in output
+    assert "Product ID: agent-ready-product" in output
+    assert "Priced: yes" in output
+    assert "Status: 402" in output
+    assert "X-Payment-Required:" in output
+    assert '"currency":"USD"' in output
+    assert '"protocol":"x402"' in output
+
+
+def test_pricing_402_builder_prints_json_envelope(tmp_path, capsys):
+    path = tmp_path / "priced-product.yaml"
+    path.write_text(sample_priced_product().to_yaml(), encoding="utf-8")
+
+    assert pricing_402_builder.main([str(path), "--json"]) == 0
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["document"]["path"] == str(path)
+    assert payload["document"]["spec"] == "odps"
+    assert payload["document"]["kind"] == "OpenDataProduct"
+    assert payload["product_id"] == "agent-ready-product"
+    assert payload["priced"] is True
+    assert payload["envelope"]["status"] == 402
+    assert "X-Payment-Required" in payload["envelope"]["headers"]
+
+
+def test_pricing_402_builder_returns_one_without_pricing(tmp_path, capsys):
+    path = tmp_path / "free-product.yaml"
+    path.write_text(sample_odps_product().to_yaml(), encoding="utf-8")
+
+    assert pricing_402_builder.main([str(path), "--json"]) == 1
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["priced"] is False
+    assert payload["envelope"] is None
+
+
+def test_pricing_402_builder_returns_one_for_invalid_product(tmp_path, capsys):
+    product = sample_priced_product()
+    product.pricing_plans.plans[0].price_currency = "INVALID"
+    path = tmp_path / "invalid-product.yaml"
+    path.write_text(product.to_yaml(), encoding="utf-8")
+
+    assert pricing_402_builder.main([str(path)]) == 1
+
+    captured = capsys.readouterr()
+    assert "Invalid ODPS product" in captured.err
+    assert "priceCurrency" in captured.err or "currency" in captured.err
+
+
+def test_pricing_402_builder_runs_as_script_from_repo_root():
+    completed = subprocess.run(
+        [
+            sys.executable,
+            "apps/pricing_402_builder/cli.py",
+            "apps/pricing_402_builder/priced_product.yaml",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert completed.returncode == 0
+    assert "ODPS Pricing 402 Builder" in completed.stdout
+    assert "Status: 402" in completed.stdout

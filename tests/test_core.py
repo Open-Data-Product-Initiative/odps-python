@@ -28,6 +28,47 @@ class TestOpenDataProduct:
         assert product.product_details.product_id == "test-001"
         assert product.product_details.visibility == "public"
 
+    def test_from_dict_accepts_v41_details_and_declarative_pricing(self):
+        """Test loading canonical ODPS v4.1 details and pricing shape."""
+        from open_data_products import pricing_to_402
+
+        product = OpenDataProduct.from_dict(
+            {
+                "schema": "https://opendataproducts.org/v4.1/schema/odps.json",
+                "version": "4.1",
+                "product": {
+                    "details": {
+                        "en": {
+                            "name": "Agent Ready Product",
+                            "productID": "agent-ready-product",
+                            "visibility": "public",
+                            "status": "production",
+                            "type": "dataset",
+                        }
+                    },
+                    "pricingPlans": {
+                        "declarative": {
+                            "en": [
+                                {
+                                    "name": "Starter",
+                                    "priceCurrency": "USD",
+                                    "price": "5.0",
+                                    "billingDuration": "month",
+                                    "unit": "Recurring",
+                                }
+                            ]
+                        }
+                    },
+                },
+            }
+        )
+
+        assert product.product_details.name == "Agent Ready Product"
+        assert product.product_details.product_id == "agent-ready-product"
+        assert product.pricing_plans.plans[0].name == "Starter"
+        assert product.pricing_plans.plans[0].price_currency == "USD"
+        assert pricing_to_402(product)["status"] == 402
+
     def test_to_dict(self, sample_odps_product):
         """Test converting OpenDataProduct to dictionary."""
         data = sample_odps_product.to_dict()

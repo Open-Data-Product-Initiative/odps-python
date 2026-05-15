@@ -158,6 +158,25 @@ def clean_none(value: Any) -> Any:
     return value
 
 
+def _preferred_language_block(data: Dict[str, Any]) -> Dict[str, Any]:
+    """Return the English language block or the first available block."""
+    if isinstance(data.get("en"), dict):
+        return data["en"]
+    for value in data.values():
+        if isinstance(value, dict):
+            return value
+    return {}
+
+
+def _language_plan_map(data: Dict[str, Any]) -> Dict[str, List[Dict[str, Any]]]:
+    """Return language-keyed pricing plans from canonical ODPS data."""
+    return {
+        language: plans
+        for language, plans in data.items()
+        if isinstance(language, str) and isinstance(plans, list)
+    }
+
+
 def parse_kpi(data: Dict[str, Any]) -> KPI:
     """Parse a KPI object from ODPS dictionary data."""
     return KPI(
@@ -176,6 +195,9 @@ def parse_kpi(data: Dict[str, Any]) -> KPI:
 
 def parse_product_details(product_data: Dict[str, Any]) -> ProductDetails:
     """Parse required product details from the ODPS product section."""
+    if isinstance(product_data.get("details"), dict):
+        product_data = _preferred_language_block(product_data["details"])
+
     use_cases = [
         UseCase(
             title=use_case_data.get("title", ""),
@@ -278,12 +300,25 @@ def parse_pricing_plan(data: Dict[str, Any]) -> PricingPlan:
 
 def parse_pricing_plans(data: Dict[str, Any]) -> PricingPlans:
     """Parse pricing plans."""
-    return PricingPlans(
-        plans=[parse_pricing_plan(plan) for plan in data.get("plans", [])],
-        language_specific_plans={
+    declarative_plans = _language_plan_map(data.get("declarative", {}))
+    language_specific_plans = {
+        language: [parse_pricing_plan(plan) for plan in plans]
+        for language, plans in data.get("languageSpecificPlans", {}).items()
+    }
+    language_specific_plans.update(
+        {
             language: [parse_pricing_plan(plan) for plan in plans]
-            for language, plans in data.get("languageSpecificPlans", {}).items()
-        },
+            for language, plans in declarative_plans.items()
+        }
+    )
+
+    return PricingPlans(
+        plans=[
+            parse_pricing_plan(plan)
+            for plan in data.get("plans", [])
+            + [plan for plans in declarative_plans.values() for plan in plans]
+        ],
+        language_specific_plans=language_specific_plans,
     )
 
 
