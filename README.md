@@ -55,9 +55,10 @@ open-data-products serve                     # MCP server over stdio
 
 ## Agent Surface (MCP + ARWS)
 
-The SDK ships an MCP (Model Context Protocol) server so any compatible host
-— Claude Code, Codex CLI, Cursor, Gemini CLI — can call its tools without
-shelling out:
+The SDK ships a local stdio MCP (Model Context Protocol) server. MCP-capable
+hosts such as Claude Code, Codex CLI, Cursor, and Gemini CLI can be configured
+to launch the server and call its tools over MCP, instead of invoking SDK CLI
+commands manually:
 
 ```bash
 open-data-products serve
