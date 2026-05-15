@@ -1,4 +1,4 @@
-# Open Data Products Python SDK
+# Open Data Products Python SDK with MCP 
 
 ![Open Data Products Python SDK](./agent.png)
 
