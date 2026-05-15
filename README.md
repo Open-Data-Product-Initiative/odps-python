@@ -48,7 +48,45 @@ open-data-products validate product.yaml --json
 open-data-products explain product.yaml --json
 open-data-products refs graph.yaml --json
 open-data-products resources --json
+open-data-products summary product.yaml      # lightweight reference: size, hash, spec
+open-data-products manifest                  # ARWS agent manifest (JSON)
+open-data-products serve                     # MCP server over stdio
 ```
+
+## Agent Surface (MCP + ARWS)
+
+The SDK ships an MCP (Model Context Protocol) server so any compatible host
+— Claude Code, Codex CLI, Cursor, Gemini CLI — can call its tools without
+shelling out:
+
+```bash
+open-data-products serve
+```
+
+The advertised tool set (`validate_document`, `explain_document`,
+`resolve_references`, `list_resources`, `get_resource`, `load_summary`,
+`search_terms`, `search_objects`) is also exposed as an
+[ARWS](https://agenticpatterns.veso.ai/arws) agent manifest:
+
+```bash
+open-data-products manifest --json
+```
+
+For paid data products, the `pricing_to_402` helper renders an ODPS
+`pricingPlans` block as the headers an [HTTP 402
+agent-payments](https://agenticpatterns.veso.ai/agent-payments) flow
+expects:
+
+```python
+from open_data_products import load_document, pricing_to_402
+
+product = load_document("premium-feed.yaml")
+envelope = pricing_to_402(product)  # {"status": 402, "headers": {...}}
+```
+
+Three [agent skills](https://agenticpatterns.veso.ai/skills) under
+`skills/` (`odp-validate`, `odp-author`, `odp-explore-graph`) wrap the
+common workflows for hosts that auto-load `SKILL.md` bundles.
 
 ## Package Structure
 

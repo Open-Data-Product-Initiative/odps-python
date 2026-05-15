@@ -19,9 +19,11 @@ Validation utilities for ODPS field values
 import re
 from typing import Dict, List, Any, Optional, Union
 from datetime import datetime
-import pycountry
-import phonenumbers
-from phonenumbers import NumberParseException
+
+from ._iso_codes import ISO_639_1, ISO_3166_1_ALPHA_2, ISO_4217
+
+# E.164: leading +, country digit 1-9, then up to 14 more digits.
+_E164_RE = re.compile(r"^\+[1-9]\d{1,14}$")
 
 
 class ODPSValidator:
@@ -40,12 +42,7 @@ class ODPSValidator:
         """
         if not isinstance(code, str) or len(code) != 2:
             return False
-
-        try:
-            pycountry.languages.get(alpha_2=code.lower())
-            return True
-        except (KeyError, AttributeError):
-            return False
+        return code.lower() in ISO_639_1
 
     @staticmethod
     def validate_language_codes(codes: List[str]) -> List[str]:
@@ -141,12 +138,7 @@ class ODPSValidator:
         """
         if not isinstance(code, str) or len(code) != 3:
             return False
-
-        try:
-            result = pycountry.currencies.get(alpha_3=code.upper())
-            return result is not None
-        except (KeyError, AttributeError):
-            return False
+        return code.upper() in ISO_4217
 
     @staticmethod
     def validate_country_code(code: str) -> bool:
@@ -161,12 +153,7 @@ class ODPSValidator:
         """
         if not isinstance(code, str) or len(code) != 2:
             return False
-
-        try:
-            pycountry.countries.get(alpha_2=code.upper())
-            return True
-        except (KeyError, AttributeError):
-            return False
+        return code.upper() in ISO_3166_1_ALPHA_2
 
     @staticmethod
     def validate_phone_number(phone: str, country_code: Optional[str] = None) -> bool:
@@ -182,12 +169,7 @@ class ODPSValidator:
         """
         if not isinstance(phone, str):
             return False
-
-        try:
-            parsed_number = phonenumbers.parse(phone, country_code)
-            return phonenumbers.is_valid_number(parsed_number)
-        except NumberParseException:
-            return False
+        return bool(_E164_RE.match(phone))
 
     @staticmethod
     def validate_iso8601_date(date_str: str) -> bool:
