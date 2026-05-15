@@ -386,13 +386,20 @@ matches = search_vocabulary("customer churn reusable data offering", limit=3)
 print(matches[0]["id"])
 ```
 
-Command line helpers are available after installation:
+Use the unified CLI to inspect bundled vocabulary resources:
 
 ```bash
-open-data-products-odpv-search "customer churn" --limit 3
-open-data-products-odpv-validate
-open-data-products-odpv-generate ./generated-vocab
-open-data-products-odpv-generate ./generated-vocab --check
+open-data-products resources --id odpv.vocabulary --json
+open-data-products resources --id odpv.terms --json
+```
+
+Derived vocabulary artifacts can be generated or checked from Python:
+
+```python
+from open_data_products.odpv import write_artifacts
+
+write_artifacts("./generated-vocab")
+assert write_artifacts("./generated-vocab", check=True) == []
 ```
 
 ### ODPC Catalogs
@@ -420,12 +427,12 @@ print(validate_catalog(catalog).valid)
 print(explain_catalog(catalog))
 ```
 
-Command line helpers are available after installation:
+Use the unified CLI to validate or explain catalog files:
 
 ```bash
-open-data-products-odpc-search demand
-open-data-products-odpc-explain catalog.yaml
-open-data-products-odpc-validate catalog.yaml
+open-data-products validate catalog.yaml
+open-data-products explain catalog.yaml
+open-data-products resources --id odpc.objects --json
 ```
 
 ### ODPG Graphs
@@ -449,11 +456,13 @@ print(matches[0]["description"])
 generate_graph_explorer(output_file="graph-explorer.html")
 ```
 
-Command line helpers are available after installation:
+Use the unified CLI for graph validation, explanation, and traversal. The
+standalone graph explorer generator is retained as its own script:
 
 ```bash
-open-data-products-odpg-search governance
-open-data-products-odpg-validate graph.yaml
+open-data-products validate graph.yaml
+open-data-products explain graph.yaml
+open-data-products refs graph.yaml --json
 open-data-products-odpg-generate --input graph.yaml --output graph-explorer.html
 ```
 
@@ -469,9 +478,8 @@ python examples/basic_usage.py
 ### Dependencies
 
 The library requires the following runtime packages:
-- `pycountry`: ISO standards validation (languages, countries, currencies)
-- `phonenumbers`: E.164 phone number validation
 - `PyYAML`: YAML format support
+- `jsonschema`: ODPC and ODPG schema validation
 
 ## License
 
@@ -519,7 +527,7 @@ We extend our gratitude to the following:
 
 **[Open Data Product Initiative Team](https://opendataproducts.org/)** - Special thanks to the team at opendataproducts.org for their work in creating and maintaining the Open Data Product Specification (ODPS). Their vision of standardizing data product descriptions and enabling better data discovery and interoperability has made this library possible. The ODPS v4.1 specification represents years of collaborative effort from industry experts, data practitioners, and open source contributors who are driving the future of data standardization.
 
-**Python Community** - For the exceptional ecosystem of libraries and tools that power this implementation, including PyYAML, pycountry, phonenumbers, and the countless other packages that make Python development a joy.
+**Python Community** - For the exceptional ecosystem of libraries and tools that power this implementation, including PyYAML, jsonschema, and the countless other packages that make Python development a joy.
 
 **Data Community** - For embracing open standards and driving the need for better data product specifications and tooling that benefits everyone in the data ecosystem.
 
