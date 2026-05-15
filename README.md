@@ -536,8 +536,10 @@ We extend our gratitude to the following:
 ## Links & References
 
 - [Open Data Product Specification v4.1](https://opendataproducts.org/v4.1/)
-- [ODPS v4.0 → v4.1 Migration Guide](https://opendataproducts.org/v4.1/#odps-4-0-4-1-migration-guide)
 - [ODPS Schema](https://opendataproducts.org/v4.1/schema/)
+- [Open Data Product Catalog (ODPC)](https://opendataproducts.org/odpc-v1.0/) 
+- [Open Data Product Graphs (ODPG)](https://opendataproducts.org/odpg-v1.0/) 
+- [Open Data Product Vocabulary (ODPV)](https://opendataproducts.org/odpv-v1.0/) 
 - [ISO 639-1 Language Codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
 - [ISO 3166-1 Country Codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
 - [ISO 4217 Currency Codes](https://en.wikipedia.org/wiki/ISO_4217)
