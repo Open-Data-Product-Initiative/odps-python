@@ -522,8 +522,17 @@ python examples/odps_v41_example.py
 - [Advanced Features](examples/advanced_features.py)
 
 ### Sample Apps
+The [apps/](apps/README.md) folder contains independent, runnable Python
+sample apps built on top of the SDK. Each app lives in its own folder with a
+`cli.py` entry point and can be run directly from the repository root.
+
 - [ODP Document Inspector CLI](apps/document_inspector/cli.py): inspect any ODPS, ODPC, ODPG, or ODPV YAML/JSON document and print validation, explanation, references, and bundled resource metadata.
 - [ODPV Vocabulary Finder CLI](apps/vocabulary_finder/cli.py): search bundled ODPV terms by natural-language query and print definitions, scores, matched fields, and related terms.
+
+```bash
+python3 apps/document_inspector/cli.py examples/demo_product.yaml
+python3 apps/vocabulary_finder/cli.py "governance policy risk" --limit 5 --json
+```
 
 ## Acknowledgments
 
