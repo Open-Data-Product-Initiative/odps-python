@@ -521,6 +521,9 @@ python examples/odps_v41_example.py
 - [Comprehensive ODPS Document](examples/comprehensive_example.py)
 - [Advanced Features](examples/advanced_features.py)
 
+### Sample Apps
+- [ODP Document Inspector CLI](apps/document_inspector/cli.py): inspect any ODPS, ODPC, ODPG, or ODPV YAML/JSON document and print validation, explanation, references, and bundled resource metadata.
+
 ## Acknowledgments
 
 We extend our gratitude to the following:
