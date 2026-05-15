@@ -540,6 +540,7 @@ We extend our gratitude to the following:
 - [Open Data Product Catalog (ODPC)](https://opendataproducts.org/odpc-v1.0/) 
 - [Open Data Product Graphs (ODPG)](https://opendataproducts.org/odpg-v1.0/) 
 - [Open Data Product Vocabulary (ODPV)](https://opendataproducts.org/odpv-v1.0/) 
+- [Open Data Product Standards Knowledge Base](https://opendataproducts.org/howto) 
 - [ISO 639-1 Language Codes](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)
 - [ISO 3166-1 Country Codes](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2)
 - [ISO 4217 Currency Codes](https://en.wikipedia.org/wiki/ISO_4217)
