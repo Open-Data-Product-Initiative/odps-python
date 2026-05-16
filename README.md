@@ -137,66 +137,20 @@ Use `open_data_products.<spec>` namespaces for every standard:
 | `open_data_products.odpg` | Open Data Product Graph | Graph helpers implemented |
 | `open_data_products.odpv` | Open Data Product Vocabulary | Vocabulary tools implemented |
 
-## Features
+## Capabilities at a Glance
 
-### ODPS v4.1
-- **ProductStrategy**: Connect data products to business objectives, KPIs, and strategic initiatives
-- **KPI Support**: Define and track Key Performance Indicators with targets, units, and calculations
-- **AI Agent Integration**: Support for AI agents via Model Context Protocol (MCP)
-- **Enhanced $ref Support**: JSON Reference syntax for component reusability
+| Area | What agents and developers can do |
+|------|-----------------------------------|
+| Cross-spec API | Detect, load, validate, explain, summarize, and resolve references across ODPS, ODPC, ODPG, and ODPV |
+| MCP + ARWS | Run a local stdio MCP server, expose safe tools, and generate an ARWS agent manifest |
+| ODPS | Create, load, validate, serialize, and inspect ODPS v4.1 data product documents |
+| ODPC | Validate catalogs, explain catalog metadata, and search bundled catalog object guidance |
+| ODPG | Validate graphs, summarize nodes and edges, traverse relationships, analyze governance/strategy signals, and extract agent context |
+| ODPV | Load, validate, search, and generate vocabulary artifacts for shared ODP terminology |
+| Bundled resources | Discover schemas, examples, vocabulary records, catalog object records, and graph object records through the resource registry |
 
-### ODPV vocabulary tools
-- **Vocabulary search**: Search bundled ODPV terms from Python or the command line
-- **Vocabulary validation**: Check vocabulary structure and expected term/relationship counts
-- **Artifact generation**: Generate `odpv.json`, `terms.jsonl`, and section YAML artifacts from the bundled canonical vocabulary
-
-### ODPC catalog tools
-- **Catalog validation**: Validate ODPC YAML or JSON catalog files against the bundled schema
-- **Catalog explanation**: Summarize catalog metadata, object counts, graph references, and hints for humans and AI agents
-- **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
-
-### ODPG graph tools
-- **Graph validation**: Validate upstream ODPG `kind: Graph` YAML, including required metadata, node integrity, edge integrity, confidence values, and non-core semantic warnings
-- **Graph summaries**: Summarize metadata, node counts, edge counts, node types, edge types, and confidence values
-- **Graph traversal**: Discover forward or reverse relationship paths from a node with optional relationship filtering
-- **Strategic analysis**: Detect orphan KPIs, unsupported objectives, ungoverned assets, low-confidence relationships, and use cases without strategic contribution
-- **Agent context**: Extract trusted graph context around a focus node, including related nodes, forward paths, reverse paths, and governance signals
-- **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
-- **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
-
-### Agent-first SDK utilities
-- **Unified document API**: Auto-detect ODPS, ODPC, ODPG, and ODPV documents from Python or the command line
-- **Consistent validation results**: Return shared validation result objects with `valid`, `spec`, `kind`, `errors`, `warnings`, and `hints`
-- **Document explanations**: Generate compact summaries for ODPS products, ODPC catalogs, ODPG graphs, and ODPV vocabulary files
-- **Reference discovery**: Extract `schema`, `ref`, and `$ref` values for cross-spec traversal
-- **Resource registry**: List bundled schemas, vocabulary files, examples, and JSONL guidance records
-
-### Core Capabilities
-- **ODPS v4.1 models and helpers**: Create, load, validate, and serialize ODPS documents using the SDK data models
-- **Standards-aware field validation**: Validates ODPS fields that use ISO, RFC, and ITU-T formats
-- **Flexible I/O**: JSON and YAML serialization/deserialization support
-- **Type hints**: Protocol-based duck typing and typed SDK models
-- **Multilingual Support**: Language-code validation for multilingual field dictionaries
-
-### Performance & Architecture
-- **Caching**: Validation and serialization caching for repeated operations
-- **Modular Architecture**: Validation framework and component model structure
-- **Protocol-Based Design**: Duck typing protocols for better type safety
-- **Comprehensive Error Handling**: Hierarchical exception system with 20+ specific error types
-
-### Standards Validation
-- **ISO 639-1**: Language code validation
-- **ISO 3166-1 alpha-2**: Country code validation
-- **ISO 4217**: Currency code validation
-- **ISO 8601**: Date/time format validation
-- **ITU-T E.164**: Phone number format validation
-- **RFC 5322**: Email address validation
-- **RFC 3986**: URI/URL validation
-
-### Developer Experience
-- **Documentation and examples**: API documentation plus runnable examples
-- **IDE Support**: Type hints for editor assistance
-- **Detailed Error Messages**: Specific validation errors with context
+ODPS field validation includes ISO language, country, currency, date/time,
+phone, email, and URI formats where those standards apply.
 
 ## Installation
 
@@ -207,332 +161,43 @@ pip install open-data-products
 pip install "open-data-products[dev]"
 ```
 
-## Quick Start
+## Usage Guide
 
-### Create an ODPS v4.1 Document
+This README is intentionally a short landing page. Use the focused references
+below for implementation details:
 
-```python
-from open_data_products.odps import OpenDataProduct
-from open_data_products.odps.models import (
-    ProductDetails,
-    ProductStrategy,
-    KPI,
-    DataAccessMethod,
-    DataHolder,
-    License
-)
+- [API reference](docs/API.md): ODPS models, validators, serialization, and examples.
+- [Example scripts](examples/): runnable ODPS examples, including v4.1 strategy and MCP access examples.
+- [Sample apps](apps/README.md): independent CLIs built on top of the SDK.
+- [Agent handoff](llms.txt): compact machine-readable routing for AI agents.
 
-# Create a new data product with international standards compliance
-product = ProductDetails(
-    name="My Weather API",
-    product_id="weather-api-v1",
-    visibility="public",
-    status="production",
-    type="dataset",
-    description="Real-time weather data",
-    language=["en", "fr"],  # ISO 639-1 language codes
-    homepage="https://example.com"  # RFC 3986 compliant URI
-)
-
-# Create ODPS document
-odp = OpenDataProduct(product)
-
-# NEW in v4.1: Add ProductStrategy to connect to business objectives
-strategy = ProductStrategy(
-    objectives=["Improve weather forecasting accuracy for disaster prevention"],
-    contributes_to_kpi=KPI(
-        name="Disaster Prevention Response Time",
-        unit="minutes",
-        target=15,
-        direction="at_most",
-        calculation="Time from alert to action"
-    ),
-    product_kpis=[
-        KPI(
-            name="Forecast Accuracy",
-            unit="percentage",
-            target=95,
-            direction="at_least"
-        )
-    ]
-)
-odp.product_strategy = strategy
-
-# Add data access with required default method
-default_access = DataAccessMethod(
-    name={"en": "REST API", "fr": "API REST"},  # Multilingual support
-    output_port_type="API",
-    access_url="https://api.example.com/weather",  # RFC 3986 URI
-    documentation_url="https://docs.example.com"   # RFC 3986 URI
-)
-odp.add_data_access(default_access)
-
-# Add data holder with validated contact info
-odp.data_holder = DataHolder(
-    name="Weather Corp",
-    email="contact@example.com",  # RFC 5322 email validation
-    phone_number="+12125551234"    # E.164 phone validation
-)
-
-# Add license with ISO 8601 date validation
-odp.license = License(
-    scope_of_use="commercial",
-    valid_from="2024-01-01",          # ISO 8601 date
-    valid_until="2025-12-31T23:59:59Z"  # ISO 8601 datetime
-)
-
-# Validate the document and standards-aware fields
-try:
-    odp.validate()
-    print("Document valid")
-except Exception as e:
-    print(f"Validation errors: {e}")
-
-# Export
-print(odp.to_json())
-odp.save("my-product.json")
-
-# Load existing document
-loaded = OpenDataProduct.from_file("my-product.json")
-```
-
-## ODPS Components
-
-### ProductDetails (Required)
-- `name`: Product name
-- `product_id`: Unique identifier  
-- `visibility`: public, private, etc.
-- `status`: draft, production, etc.
-- `type`: dataset, algorithm, etc.
-
-### Optional Components
-- **ProductStrategy** (NEW v4.1): Business objectives, KPIs, and strategic alignment
-- **DataContract**: API specifications and data schemas (now with $ref support)
-- **SLA**: Service level agreements (now with $ref support)
-- **DataQuality**: Quality metrics and rules (now with $ref support)
-- **PricingPlans**: Pricing tiers with ISO 4217 currency validation
-- **License**: Usage rights with ISO 8601 date validation
-- **DataAccess**: Access methods including AI agent support (NEW v4.1: MCP protocol)
-- **DataHolder**: Contact information with email/phone validation
-- **PaymentGateways**: Payment processing details (now with $ref support)
-
-## Validation Standards
-
-The library validates ODPS fields that use these international standards:
-
-| Standard | Used For | Example |
-|----------|----------|----------|
-| **ISO 639-1** | Language codes | `"en"`, `"fr"`, `"de"` |
-| **ISO 3166-1 alpha-2** | Country codes | `"US"`, `"GB"`, `"DE"` |
-| **ISO 4217** | Currency codes | `"USD"`, `"EUR"`, `"GBP"` |
-| **ISO 8601** | Date/time formats | `"2024-01-01"`, `"2024-01-01T12:00:00Z"` |
-| **E.164** | Phone numbers | `"+12125551234"` |
-| **RFC 5322** | Email addresses | `"user@example.com"` |
-| **RFC 3986** | URIs/URLs | `"https://example.com/api"` |
-
-### Multilingual Support
-
-Fields like `dataAccess.name` and `dataAccess.description` support multilingual dictionaries:
-
-```python
-{
-    "name": {
-        "en": "Weather API",
-        "fr": "API Météo",
-        "de": "Wetter-API"
-    }
-}
-```
-
-All language keys are validated against ISO 639-1 standards.
-
-## Performance Features
-
-### Intelligent Caching
-The library includes sophisticated caching for optimal performance:
-
-```python
-import time
-from open_data_products.odps import OpenDataProduct, ProductDetails
-
-# Create a product
-details = ProductDetails(
-    name="Performance Test",
-    product_id="perf-001", 
-    visibility="public",
-    status="draft",
-    type="dataset"
-)
-product = OpenDataProduct(details)
-
-# First validation - full processing
-start = time.time()
-product.validate()
-first_time = time.time() - start
-
-# Second validation - cached result
-start = time.time()
-product.validate()
-cached_time = time.time() - start
-
-print(f"Cache speedup: {first_time/cached_time:.1f}x")
-```
-
-### Compliance Assessment
-```python
-# Convenience compliance indicators
-compliance_level = product.compliance_level  # "minimal", "basic", "substantial", "full"
-is_production_ready = product.is_production_ready
-validation_errors = product.validation_errors  # No exceptions raised
-component_count = product.component_count
-```
-
-## Advanced Usage
-
-### Custom Validation
-
-```python
-from open_data_products.odps.validators import ODPSValidator
-
-# Validate individual components
-print(ODPSValidator.validate_iso639_language_code("en"))  # True
-print(ODPSValidator.validate_currency_code("USD"))        # True
-print(ODPSValidator.validate_email("test@example.com"))   # True
-print(ODPSValidator.validate_phone_number("+12125551234"))  # True
-print(ODPSValidator.validate_iso8601_date("2024-01-01"))    # True
-```
-
-### Loading from Different Formats
-
-```python
-# From JSON
-odp = OpenDataProduct.from_json(json_string)
-
-# From YAML  
-odp = OpenDataProduct.from_yaml(yaml_string)
-
-# From file (auto-detects format)
-odp = OpenDataProduct.from_file("product.json")
-odp = OpenDataProduct.from_file("product.yaml")
-```
-
-### Agent Payment Envelope
-
-For paid data products, the `pricing_to_402` helper renders an ODPS
-`pricingPlans` block as the headers an [HTTP 402
-agent-payments](https://agenticpatterns.veso.ai/agent-payments) flow expects:
-
-```python
-from open_data_products import load_document, pricing_to_402
-
-product = load_document("premium-feed.yaml")
-envelope = pricing_to_402(product)  # {"status": 402, "headers": {...}}
-```
-
-### ODPV Vocabulary
-
-```python
-from open_data_products.odpv import search_vocabulary, validate_vocabulary
-
-result = validate_vocabulary()
-print(result.valid, result.term_count, result.relationship_count)
-
-matches = search_vocabulary("customer churn reusable data offering", limit=3)
-print(matches[0]["id"])
-```
-
-Use the unified CLI to inspect bundled vocabulary resources:
+### Common Workflows
 
 ```bash
-open-data-products resources --id odpv.vocabulary --json
-open-data-products resources --id odpv.terms --json
-```
-
-Derived vocabulary artifacts can be generated or checked from Python:
-
-```python
-from open_data_products.odpv import write_artifacts
-
-write_artifacts("./generated-vocab")
-assert write_artifacts("./generated-vocab", check=True) == []
-```
-
-### ODPC Catalogs
-
-```python
-from open_data_products.odpc import explain_catalog, search_objects, validate_catalog
-
-matches = search_objects(object_id="ProductReference")
-print(matches[0]["definition"])
-
-catalog = {
-    "schema": "https://opendataproducts.org/odpc-v1.0/schema/odpc.yaml",
-    "version": "1.0",
-    "kind": "Catalog",
-    "catalog": {
-        "metadata": {
-            "id": "CAT-001",
-            "name": {"en": "Urban Mobility Data Product Catalog"},
-            "description": {"en": "Catalog of urban mobility data products."},
-        }
-    },
-}
-
-print(validate_catalog(catalog).valid)
-print(explain_catalog(catalog))
-```
-
-Use the unified CLI to validate or explain catalog files:
-
-```bash
-open-data-products validate catalog.yaml
-open-data-products explain catalog.yaml
-open-data-products resources --id odpc.objects --json
-```
-
-### ODPG Graphs
-
-```python
-from open_data_products.odpg import (
-    agent_context,
-    analyze_graph,
-    collect_relationship_types,
-    generate_graph_explorer,
-    load_graph,
-    search_graph_objects,
-    summarize_graph,
-    traverse_graph,
-    validate_graph,
-)
-
-graph = load_graph()
-print(validate_graph(graph).valid)
-print(summarize_graph(graph)["nodeCount"])
-print(collect_relationship_types(graph))
-print(traverse_graph(graph, "AGENT-AVIATION-001", 2))
-print(analyze_graph(graph)["ungovernedAssets"])
-print(agent_context(graph, "AGENT-AVIATION-001", 2)["focusNode"]["id"])
-
-matches = search_graph_objects(object_id="DataProduct")
-print(matches[0]["description"])
-
-generate_graph_explorer(output_file="graph-explorer.html")
-```
-
-Use the unified CLI for graph validation, explanation, traversal, analysis, and
-AI-agent context extraction. The standalone graph explorer generator is retained
-as a compatibility script:
-
-```bash
-open-data-products validate graph.yaml
-open-data-products explain graph.yaml
+# Cross-spec validation and summaries
+open-data-products validate product.yaml --json
+open-data-products explain catalog.yaml --json
 open-data-products refs graph.yaml --json
+open-data-products summary product.yaml
+
+# Bundled agent resources
+open-data-products resources --json
+open-data-products resources --id odpv.terms --json
+open-data-products resources --id odpg.objects --json
+
+# ODPG graph reasoning
 open-data-products odpg-summary graph.yaml
 open-data-products odpg-traverse graph.yaml --start AGENT-001 --depth 2
 open-data-products odpg-analyze graph.yaml
 open-data-products odpg-agent-context graph.yaml --node AGENT-001 --depth 2
-open-data-products-odpg-generate --input graph.yaml --output graph-explorer.html
 ```
+
+### Spec-Specific Entry Points
+
+- `open_data_products.odps`: ODPS v4.1 models, standards-aware validation, YAML/JSON I/O, compliance helpers, and `pricing_to_402`.
+- `open_data_products.odpc`: ODPC catalog loading, validation, explanation, and object guidance search.
+- `open_data_products.odpg`: ODPG graph validation, summary, traversal, analysis, agent context, object search, and graph explorer generation.
+- `open_data_products.odpv`: ODPV vocabulary loading, validation, search, and generated vocabulary artifacts.
 
 ## Development
 
