@@ -7,6 +7,7 @@ implementation is judged by their pass/fail status, not by code reading.
 from __future__ import annotations
 
 import json
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -144,6 +145,33 @@ class TestMCPToolDefinitions:
         payload = json.loads(result["content"][0]["text"])
         assert payload["valid"] is True
         assert payload["spec"] == "odps"
+
+
+class TestCodexProjectConfig:
+    def test_codex_mcp_config_points_to_sdk_server(self):
+        path = REPO_ROOT / ".codex" / "config.toml"
+
+        config = tomllib.loads(path.read_text(encoding="utf-8"))
+        server = config["mcp_servers"]["open_data_products"]
+
+        assert server["command"] == "open-data-products"
+        assert server["args"] == ["serve"]
+        assert server["enabled"] is True
+        assert server["startup_timeout_sec"] == 10
+        assert server["tool_timeout_sec"] == 60
+        assert "/" not in server["command"]
+
+
+class TestClaudeCodeProjectConfig:
+    def test_claude_code_mcp_config_points_to_sdk_server(self):
+        path = REPO_ROOT / ".mcp.json"
+
+        config = json.loads(path.read_text(encoding="utf-8"))
+        server = config["mcpServers"]["open_data_products"]
+
+        assert server["command"] == "open-data-products"
+        assert server["args"] == ["serve"]
+        assert "/" not in server["command"]
 
 
 # --- Agent-Readable Web (ARWS) ----------------------------------------------

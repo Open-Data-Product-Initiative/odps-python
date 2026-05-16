@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "open_data_products": {
+      "command": "open-data-products",
+      "args": ["serve"]
+    }
+  }
+}
