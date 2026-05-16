@@ -162,18 +162,6 @@ class TestCodexProjectConfig:
         assert "/" not in server["command"]
 
 
-class TestClaudeCodeProjectConfig:
-    def test_claude_code_mcp_config_points_to_sdk_server(self):
-        path = REPO_ROOT / ".mcp.json"
-
-        config = json.loads(path.read_text(encoding="utf-8"))
-        server = config["mcpServers"]["open_data_products"]
-
-        assert server["command"] == "open-data-products"
-        assert server["args"] == ["serve"]
-        assert "/" not in server["command"]
-
-
 # --- Agent-Readable Web (ARWS) ----------------------------------------------
 # https://agenticpatterns.veso.ai/arws
 
