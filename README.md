@@ -1,4 +1,4 @@
-# Open Data Products Python SDK with MCP 
+# Open Data Products Python SDK for AI Agents
 
 ![Open Data Products Python SDK](./agent.png)
 
@@ -6,18 +6,20 @@
 [![Python Support](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://github.com/Open-Data-Product-Initiative/odps-python)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-A Python SDK and agent toolkit for the OpenDataProducts.org standards family. The library provides one unified Agent API for loading, detecting, validating, explaining, and traversing: 
+An AI-agent-first Python SDK for the OpenDataProducts.org standards family. It gives agents, agent hosts, and automation systems one consistent surface for loading, detecting, validating, explaining, searching, traversing, and summarizing documents across:
 
 * [Open Data Product Specification (ODPS)](https://opendataproducts.org/v4.1/), 
 * [Open Data Product Catalog (ODPC)](https://opendataproducts.org/odpc-v1.0/), 
-* [Open Data Product Graphs (ODPG)](https://opendataproducts.org/odpg-v1.0/), and 
-* [Open Data Product Vocabulary (ODPV)](https://opendataproducts.org/odpv-v1.0/) documents, 
+* [Open Data Product Graphs (ODPG)](https://opendataproducts.org/odpg-v1.0/), and
+* [Open Data Product Vocabulary (ODPV)](https://opendataproducts.org/odpv-v1.0/).
 
-plus spec-specific helpers for each standard.
+The package still includes developer-facing Python helpers, but the primary contract is agent-ready: structured validation results, lightweight artifact summaries, reference discovery, bundled retrieval resources, a unified CLI, an MCP stdio server, and an ARWS agent manifest.
 
-## Agent API
+## AI Agent-First SDK
 
-Use the top-level API when building AI agents, automation, validation pipelines, or tools that need to work across the Open Data Products standards family:
+### Unified Agent API
+
+Use the top-level API when building AI agents, automation, validation pipelines, or tools that need to work across the Open Data Products standards family without knowing the spec namespace ahead of time:
 
 ```python
 from open_data_products import (
@@ -49,11 +51,20 @@ open-data-products explain product.yaml --json
 open-data-products refs graph.yaml --json
 open-data-products resources --json
 open-data-products summary product.yaml      # lightweight reference: size, hash, spec
-open-data-products manifest                  # ARWS agent manifest (JSON)
+open-data-products manifest --json           # ARWS agent manifest
 open-data-products serve                     # MCP server over stdio
 ```
 
-## Agent Surface (MCP + ARWS)
+### Why Agent First
+
+- **One cross-spec entry point**: Agents can call `load_document`, `validate_document`, `explain_document`, and `resolve_references` across ODPS, ODPC, ODPG, and ODPV files.
+- **Structured outputs**: Validation, references, resources, summaries, and graph reasoning helpers return predictable objects that are easy for agents to inspect.
+- **Small-context workflows**: `load_summary` returns metadata, size, hash, spec, kind, and id without returning full document bodies.
+- **Retrieval-ready resources**: Bundled schemas, vocabulary records, catalog object records, and graph object records are discoverable through `list_resources` and MCP tools.
+- **Graph reasoning for agents**: ODPG helpers support graph summaries, traversal, strategic analysis, and trusted focus-node context extraction.
+- **Host integration**: MCP-capable tools can launch `open-data-products serve`, while ARWS-compatible systems can read the generated manifest.
+
+### Agent Surface (MCP + ARWS)
 
 The SDK ships a local stdio MCP (Model Context Protocol) server. MCP-capable
 hosts such as Claude Code, Codex CLI, Cursor, and Gemini CLI can be configured
@@ -64,9 +75,10 @@ commands manually:
 open-data-products serve
 ```
 
-The advertised tool set (`validate_document`, `explain_document`,
+The same tool set (`validate_document`, `explain_document`,
 `resolve_references`, `list_resources`, `get_resource`, `load_summary`,
-`search_terms`, `search_objects`) is also exposed as an
+`search_terms`, `search_objects`, `search_graph_objects`, `summarize_graph`,
+`traverse_graph`, `analyze_graph`, `agent_context`) is also exposed as an
 [ARWS](https://agenticpatterns.veso.ai/arws) agent manifest:
 
 ```bash
@@ -127,7 +139,7 @@ Use `open_data_products.<spec>` namespaces for every standard:
 - **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
 - **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
 
-### Agent toolkit
+### Agent-first SDK utilities
 - **Unified document API**: Auto-detect ODPS, ODPC, ODPG, and ODPV documents from Python or the command line
 - **Consistent validation results**: Return shared validation result objects with `valid`, `spec`, `kind`, `errors`, `warnings`, and `hints`
 - **Document explanations**: Generate compact summaries for ODPS products, ODPC catalogs, ODPG graphs, and ODPV vocabulary files
