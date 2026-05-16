@@ -17,6 +17,15 @@ The package still includes developer-facing Python helpers, but the primary cont
 
 ## AI Agent-First SDK
 
+### Why Agent First
+
+- **One cross-spec entry point**: Agents can call `load_document`, `validate_document`, `explain_document`, and `resolve_references` across ODPS, ODPC, ODPG, and ODPV files.
+- **Structured outputs**: Validation, references, resources, summaries, and graph reasoning helpers return predictable objects that are easy for agents to inspect.
+- **Small-context workflows**: `load_summary` returns metadata, size, hash, spec, kind, and id without returning full document bodies.
+- **Retrieval-ready resources**: Bundled schemas, vocabulary records, catalog object records, and graph object records are discoverable through `list_resources` and MCP tools.
+- **Graph reasoning for agents**: ODPG helpers support graph summaries, traversal, strategic analysis, and trusted focus-node context extraction.
+- **Host integration**: MCP-capable tools can launch `open-data-products serve`, while ARWS-compatible systems can read the generated manifest.
+
 ### Unified Agent API
 
 Use the top-level API when building AI agents, automation, validation pipelines, or tools that need to work across the Open Data Products standards family without knowing the spec namespace ahead of time:
@@ -54,15 +63,6 @@ open-data-products summary product.yaml      # lightweight reference: size, hash
 open-data-products manifest --json           # ARWS agent manifest
 open-data-products serve                     # MCP server over stdio
 ```
-
-### Why Agent First
-
-- **One cross-spec entry point**: Agents can call `load_document`, `validate_document`, `explain_document`, and `resolve_references` across ODPS, ODPC, ODPG, and ODPV files.
-- **Structured outputs**: Validation, references, resources, summaries, and graph reasoning helpers return predictable objects that are easy for agents to inspect.
-- **Small-context workflows**: `load_summary` returns metadata, size, hash, spec, kind, and id without returning full document bodies.
-- **Retrieval-ready resources**: Bundled schemas, vocabulary records, catalog object records, and graph object records are discoverable through `list_resources` and MCP tools.
-- **Graph reasoning for agents**: ODPG helpers support graph summaries, traversal, strategic analysis, and trusted focus-node context extraction.
-- **Host integration**: MCP-capable tools can launch `open-data-products serve`, while ARWS-compatible systems can read the generated manifest.
 
 ### Agent Surface (MCP + ARWS)
 
