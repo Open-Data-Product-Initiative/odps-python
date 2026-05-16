@@ -75,7 +75,9 @@ commands manually:
 open-data-products serve
 ```
 
-Project-level MCP setup is included for Codex and Claude Code so the SDK can be
+#### Codex and Claude Code
+
+Project-level MCP setup is included for **Codex** and **Claude Code** so the SDK can be
 used as an MCP tool surface directly from the repository:
 
 - **Codex**: `.codex/config.toml` registers the SDK server as
