@@ -545,6 +545,8 @@ We extend our gratitude to the following:
 
 **[Chris Howard / Kitard](https://github.com/Kitard)** - Special thanks to Chris Howard from Accenture for creating the original `odps-python` library. His foundational work made it possible to extend the project into the broader Open Data Products SDK and agent toolkit.
 
+**[devlouie](https://github.com/devlouie)** - Special thanks to devlouie for contributing the MCP layer and Agent Surface on top of the SDK, helping make the Open Data Products standards family easier to use from agentic tools and workflows.
+
 **Python Community** - For the exceptional ecosystem of libraries and tools that power this implementation, including PyYAML, jsonschema, and the countless other packages that make Python development a joy.
 
 **Data Community** - For embracing open standards and driving the need for better data product specifications and tooling that benefits everyone in the data ecosystem.
