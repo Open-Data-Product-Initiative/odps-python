@@ -511,14 +511,6 @@ The library requires the following runtime packages:
 - `PyYAML`: YAML format support
 - `jsonschema`: ODPC and ODPG schema validation
 
-## License
-
-Apache License 2.0 - see LICENSE file for details.
-
-## Contributing
-
-Contributions welcome! Please read CONTRIBUTING.md for guidelines.
-
 ## Error Handling
 
 The library provides detailed validation error messages that reference specific standards:
@@ -581,6 +573,14 @@ We extend our gratitude to the following:
 **Data Community** - For embracing open standards and driving the need for better data product specifications and tooling that benefits everyone in the data ecosystem.
 
 **Documentation Support** - Documentation assistance provided by Claude (Anthropic).
+
+## Contributing
+
+Contributions welcome! Please read CONTRIBUTING.md for guidelines.
+
+## License
+
+Apache License 2.0 - see LICENSE file for details.
 
 ## Links & References
 
