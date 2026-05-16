@@ -529,10 +529,12 @@ sample apps built on top of the SDK. Each app lives in its own folder with a
 
 - [ODP Document Inspector CLI](apps/document_inspector/cli.py): inspect any ODPS, ODPC, ODPG, or ODPV YAML/JSON document and print validation, explanation, references, and bundled resource metadata.
 - [ODPV Vocabulary Finder CLI](apps/vocabulary_finder/cli.py): search bundled ODPV terms by natural-language query and print definitions, scores, matched fields, and related terms.
+- [ODPS Pricing 402 Builder CLI](apps/pricing_402_builder/cli.py): build an HTTP 402 payment envelope from an ODPS product with pricing plans.
 
 ```bash
-python3 apps/document_inspector/cli.py examples/demo_product.yaml
+python3 apps/document_inspector/cli.py apps/pricing_402_builder/priced_product.yaml
 python3 apps/vocabulary_finder/cli.py "governance policy risk" --limit 5 --json
+python3 apps/pricing_402_builder/cli.py apps/pricing_402_builder/priced_product.yaml --json
 ```
 
 ## Acknowledgments
