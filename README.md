@@ -122,18 +122,6 @@ The same tool set (`validate_document`, `explain_document`,
 open-data-products manifest --json
 ```
 
-For paid data products, the `pricing_to_402` helper renders an ODPS
-`pricingPlans` block as the headers an [HTTP 402
-agent-payments](https://agenticpatterns.veso.ai/agent-payments) flow
-expects:
-
-```python
-from open_data_products import load_document, pricing_to_402
-
-product = load_document("premium-feed.yaml")
-envelope = pricing_to_402(product)  # {"status": 402, "headers": {...}}
-```
-
 Three [agent skills](https://agenticpatterns.veso.ai/skills) under
 `skills/` (`odp-validate`, `odp-author`, `odp-explore-graph`) wrap the
 common workflows for hosts that auto-load `SKILL.md` bundles.
@@ -426,6 +414,19 @@ odp = OpenDataProduct.from_yaml(yaml_string)
 # From file (auto-detects format)
 odp = OpenDataProduct.from_file("product.json")
 odp = OpenDataProduct.from_file("product.yaml")
+```
+
+### Agent Payment Envelope
+
+For paid data products, the `pricing_to_402` helper renders an ODPS
+`pricingPlans` block as the headers an [HTTP 402
+agent-payments](https://agenticpatterns.veso.ai/agent-payments) flow expects:
+
+```python
+from open_data_products import load_document, pricing_to_402
+
+product = load_document("premium-feed.yaml")
+envelope = pricing_to_402(product)  # {"status": 402, "headers": {...}}
 ```
 
 ### ODPV Vocabulary
