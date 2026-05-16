@@ -75,12 +75,16 @@ commands manually:
 open-data-products serve
 ```
 
-Codex project setup is included in `.codex/config.toml`. It registers the
-repository MCP server as `open_data_products` and starts it with
-`open-data-products serve`. The config is intentionally PATH-based and contains
+Project-level MCP setup is included for Codex and Claude Code:
+
+- `.codex/config.toml` registers the server for Codex.
+- `.mcp.json` registers the server for Claude Code.
+
+Both configs use the portable server name `open_data_products` and start it
+with `open-data-products serve`. They are intentionally PATH-based and contain
 no local absolute paths, so install the package in the active environment first
-with `pip install -e .` or install the published package before expecting Codex
-to launch the server.
+with `pip install -e .` or install the published package before expecting an
+agent host to launch the server.
 
 The same tool set (`validate_document`, `explain_document`,
 `resolve_references`, `list_resources`, `get_resource`, `load_summary`,
