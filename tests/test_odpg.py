@@ -1,11 +1,15 @@
 from pathlib import Path
 
 from open_data_products.odpg import (
+    agent_context,
+    analyze_graph,
     build_graph_explorer_html,
     collect_relationship_types,
     generate_graph_explorer,
     load_graph,
     search_graph_objects,
+    summarize_graph,
+    traverse_graph,
     validate_graph,
 )
 from open_data_products.odpg.cli import generate_main, search_main, validate_main
@@ -18,9 +22,11 @@ def test_bundled_graph_loads_and_validates():
 
     assert result.valid
     assert result.errors == []
-    assert graph["kind"] == "DataProductGraph"
-    assert len(graph["nodes"]) == 9
-    assert len(graph["edges"]) == 13
+    assert result.warnings == []
+    assert graph["kind"] == "Graph"
+    assert graph["graph"]["metadata"]["id"] == "GRAPH-AVIATION-001"
+    assert len(graph["graph"]["nodes"]) == 9
+    assert len(graph["graph"]["edges"]) == 13
 
 
 def test_relationship_types_keep_odpg_order():
@@ -60,16 +66,65 @@ def test_build_graph_explorer_html_returns_document():
 
 def test_cli_entry_points(tmp_path):
     output = tmp_path / "graph-explorer.html"
+    graph = Path("open_data_products/odpg/data/graph/graph.yaml")
 
-    assert validate_main([]) == 0
+    assert validate_main([str(graph)]) == 0
     assert search_main(["--id", "DataProduct", "--json"]) == 0
     assert generate_main(["--output", str(output)]) == 0
     assert output.exists()
 
 
+def test_upstream_toolkit_summary_traverse_analyze_and_agent_context():
+    graph = load_graph()
+
+    summary = summarize_graph(graph)
+    paths = traverse_graph(graph, "AGENT-AVIATION-001", 2)
+    reverse_paths = traverse_graph(graph, "OBJ-AVIATION-001", 1, reverse=True)
+    analysis = analyze_graph(graph)
+    context = agent_context(graph, "AGENT-AVIATION-001", 2)
+
+    assert summary["id"] == "GRAPH-AVIATION-001"
+    assert summary["nodeCount"] == 9
+    assert summary["edgeTypes"]["uses"] == 4
+    assert paths[0]["start"] == "AGENT-AVIATION-001"
+    assert any(path["end"] == "API-AVIATION-001" for path in paths)
+    assert any(path["end"] == "DP-AVIATION-001" for path in reverse_paths)
+    assert analysis["unsupportedBusinessObjectives"] == []
+    assert "DP-AVIATION-002" in analysis["ungovernedAssets"]
+    assert context["focusNode"]["id"] == "AGENT-AVIATION-001"
+    assert any(node["id"] == "POL-AVIATION-001" for node in context["relatedNodes"])
+    assert context["governanceSignals"]
+
+
+def test_validation_reports_upstream_warnings_and_confidence_errors():
+    graph = load_graph()
+    graph["graph"]["nodes"].append(
+        {
+            "id": "CUSTOM-001",
+            "type": "CustomNode",
+            "$ref": "../custom/custom-node.yaml",
+        }
+    )
+    graph["graph"]["edges"].append(
+        {
+            "from": "CUSTOM-001",
+            "to": "DP-AVIATION-001",
+            "type": "customRelation",
+            "confidence": "certain",
+        }
+    )
+
+    result = validate_graph(graph)
+
+    assert not result.valid
+    assert any("non-core node type" in warning for warning in result.warnings)
+    assert any("non-core edge type" in warning for warning in result.warnings)
+    assert any("invalid confidence" in error for error in result.errors)
+
+
 def test_invalid_graph_reports_missing_reference():
     graph = load_graph()
-    graph["edges"] = [
+    graph["graph"]["edges"] = [
         {
             "from": "missing",
             "to": "DP-AVIATION-001",

@@ -11,10 +11,14 @@ from typing import List, Optional
 import yaml
 
 from .graph import (
+    agent_context,
+    analyze_graph,
     generate_graph_explorer,
     load_graph,
     render_graph_object_records,
     search_graph_objects,
+    summarize_graph,
+    traverse_graph,
     validate_graph,
 )
 
@@ -83,6 +87,114 @@ def validate_main(argv: Optional[List[str]] = None) -> int:
     return 0
 
 
+def _load_valid_graph(graph_path: str):
+    graph = load_graph(graph_path)
+    result = validate_graph(graph)
+    return graph, result
+
+
+def summary_main(argv: Optional[List[str]] = None) -> int:
+    """Summarize an ODPG graph from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Summarize ODPG graph metadata, nodes, edges, relationship types, and confidence values.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("graph", help="Path to an ODPG YAML graph file")
+    args = parser.parse_args(argv)
+
+    try:
+        graph = load_graph(args.graph)
+    except (FileNotFoundError, yaml.YAMLError, ValueError) as exc:
+        print(f"Could not summarize graph: {exc}", file=sys.stderr)
+        return 1
+    print(json.dumps(summarize_graph(graph), indent=2))
+    return 0
+
+
+def traverse_main(argv: Optional[List[str]] = None) -> int:
+    """Discover ODPG relationship paths from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Discover relationship paths from an ODPG node.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("graph", help="Path to an ODPG YAML graph file")
+    parser.add_argument("--start", required=True, help="Starting node id")
+    parser.add_argument("--depth", type=int, default=2, help="Maximum traversal depth")
+    parser.add_argument("--relationship", help="Optional relationship type filter")
+    parser.add_argument(
+        "--reverse", action="store_true", help="Traverse incoming relationships"
+    )
+    args = parser.parse_args(argv)
+
+    try:
+        graph, result = _load_valid_graph(args.graph)
+    except (FileNotFoundError, yaml.YAMLError, ValueError) as exc:
+        print(f"Could not traverse graph: {exc}", file=sys.stderr)
+        return 1
+    if not result.valid:
+        print(json.dumps(result.to_dict(), indent=2))
+        return 1
+    paths = traverse_graph(
+        graph,
+        args.start,
+        args.depth,
+        relationship=args.relationship,
+        reverse=args.reverse,
+    )
+    print(json.dumps({"start": args.start, "paths": paths}, indent=2))
+    return 0
+
+
+def analyze_main(argv: Optional[List[str]] = None) -> int:
+    """Run ODPG strategic and governance checks from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Run ODPG strategic and governance analysis checks.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("graph", help="Path to an ODPG YAML graph file")
+    args = parser.parse_args(argv)
+
+    try:
+        graph, result = _load_valid_graph(args.graph)
+    except (FileNotFoundError, yaml.YAMLError, ValueError) as exc:
+        print(f"Could not analyze graph: {exc}", file=sys.stderr)
+        return 1
+    if not result.valid:
+        print(json.dumps(result.to_dict(), indent=2))
+        return 1
+    print(
+        json.dumps(
+            {"warnings": result.warnings, "analysis": analyze_graph(graph)}, indent=2
+        )
+    )
+    return 0
+
+
+def agent_context_main(argv: Optional[List[str]] = None) -> int:
+    """Extract trusted ODPG context around a focus node from the command line."""
+    parser = argparse.ArgumentParser(
+        description="Extract trusted ODPG graph context around a focus node for AI-agent use.",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+    parser.add_argument("graph", help="Path to an ODPG YAML graph file")
+    parser.add_argument("--node", required=True, help="Focus node id")
+    parser.add_argument("--depth", type=int, default=2, help="Context traversal depth")
+    args = parser.parse_args(argv)
+
+    try:
+        graph, result = _load_valid_graph(args.graph)
+    except (FileNotFoundError, yaml.YAMLError, ValueError) as exc:
+        print(f"Could not extract graph context: {exc}", file=sys.stderr)
+        return 1
+    if not result.valid:
+        print(json.dumps(result.to_dict(), indent=2))
+        return 1
+    payload = agent_context(graph, args.node, args.depth)
+    payload["warnings"] = result.warnings
+    print(json.dumps(payload, indent=2))
+    return 0
+
+
 def generate_main(argv: Optional[List[str]] = None) -> int:
     """Generate an ODPG graph explorer from the command line."""
     parser = argparse.ArgumentParser(
@@ -118,7 +230,7 @@ def generate_main(argv: Optional[List[str]] = None) -> int:
             json.dumps(
                 {
                     "spec": "odpg",
-                    "kind": "DataProductGraph",
+                    "kind": "Graph",
                     "output": str(output),
                     "generated": True,
                 },

@@ -49,8 +49,8 @@ def detect_document(document: Document) -> Tuple[str, str]:
     kind = str(document.get("kind", "") or "")
     if "odpc" in schema or kind == "Catalog" or "catalog" in document:
         return "odpc", kind or "Catalog"
-    if "odpg" in schema or kind == "DataProductGraph":
-        return "odpg", kind or "DataProductGraph"
+    if "odpg" in schema or kind in {"Graph", "DataProductGraph"}:
+        return "odpg", kind or "Graph"
     if "odps" in schema or "product" in document:
         return "odps", "OpenDataProduct"
     if document.get("id") == "ODPV" or "sections" in document:

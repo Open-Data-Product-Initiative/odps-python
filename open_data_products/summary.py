@@ -68,4 +68,9 @@ def _extract_id(data: Dict[str, Any]) -> str:
         meta = catalog.get("metadata")
         if isinstance(meta, dict) and isinstance(meta.get("id"), str):
             return meta["id"]
+    graph = data.get("graph")
+    if isinstance(graph, dict):
+        meta = graph.get("metadata")
+        if isinstance(meta, dict) and isinstance(meta.get("id"), str):
+            return meta["id"]
     return ""

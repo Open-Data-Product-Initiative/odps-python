@@ -119,7 +119,11 @@ Use `open_data_products.<spec>` namespaces for every standard:
 - **Object search**: Search bundled ODPC object guidance records such as `Catalog`, `ProductReference`, `UseCase`, `BusinessObjective`, `KPI`, and `Signal`
 
 ### ODPG graph tools
-- **Graph validation**: Validate ODPG graph YAML against the bundled schema plus structural checks for unique node IDs and edge references
+- **Graph validation**: Validate upstream ODPG `kind: Graph` YAML, including required metadata, node integrity, edge integrity, confidence values, and non-core semantic warnings
+- **Graph summaries**: Summarize metadata, node counts, edge counts, node types, edge types, and confidence values
+- **Graph traversal**: Discover forward or reverse relationship paths from a node with optional relationship filtering
+- **Strategic analysis**: Detect orphan KPIs, unsupported objectives, ungoverned assets, low-confidence relationships, and use cases without strategic contribution
+- **Agent context**: Extract trusted graph context around a focus node, including related nodes, forward paths, reverse paths, and governance signals
 - **Graph explorer generation**: Generate a standalone HTML graph explorer from an ODPG graph YAML file
 - **Graph object search**: Search bundled ODPG graph guidance records such as node types, edge types, graph fields, and graph patterns
 
@@ -440,16 +444,24 @@ open-data-products resources --id odpc.objects --json
 
 ```python
 from open_data_products.odpg import (
+    agent_context,
+    analyze_graph,
     collect_relationship_types,
     generate_graph_explorer,
     load_graph,
     search_graph_objects,
+    summarize_graph,
+    traverse_graph,
     validate_graph,
 )
 
 graph = load_graph()
 print(validate_graph(graph).valid)
+print(summarize_graph(graph)["nodeCount"])
 print(collect_relationship_types(graph))
+print(traverse_graph(graph, "AGENT-AVIATION-001", 2))
+print(analyze_graph(graph)["ungovernedAssets"])
+print(agent_context(graph, "AGENT-AVIATION-001", 2)["focusNode"]["id"])
 
 matches = search_graph_objects(object_id="DataProduct")
 print(matches[0]["description"])
@@ -457,13 +469,18 @@ print(matches[0]["description"])
 generate_graph_explorer(output_file="graph-explorer.html")
 ```
 
-Use the unified CLI for graph validation, explanation, and traversal. The
-standalone graph explorer generator is retained as its own script:
+Use the unified CLI for graph validation, explanation, traversal, analysis, and
+AI-agent context extraction. The standalone graph explorer generator is retained
+as a compatibility script:
 
 ```bash
 open-data-products validate graph.yaml
 open-data-products explain graph.yaml
 open-data-products refs graph.yaml --json
+open-data-products odpg-summary graph.yaml
+open-data-products odpg-traverse graph.yaml --start AGENT-001 --depth 2
+open-data-products odpg-analyze graph.yaml
+open-data-products odpg-agent-context graph.yaml --node AGENT-001 --depth 2
 open-data-products-odpg-generate --input graph.yaml --output graph-explorer.html
 ```
 

@@ -5,10 +5,10 @@ from __future__ import annotations
 import argparse
 import html
 import json
+from collections import defaultdict, deque
 from pathlib import Path
-from typing import Any, Dict, FrozenSet, List, Optional, Tuple, Union
+from typing import Any, DefaultDict, Dict, FrozenSet, List, Optional, Set, Tuple, Union
 
-import jsonschema
 import yaml
 
 from open_data_products.results import ValidationResult
@@ -31,11 +31,12 @@ ODPG_CORE_EDGE_TYPES_ORDERED: Tuple[str, ...] = (
     "measures",
     "tracks",
     "dependsOn",
-    "produce",
-    "Consumes",
+    "produces",
+    "consumes",
     "governedBy",
     "ownedBy",
     "alignsWith",
+    "alignWith",
     "relatedTo",
     "impacts",
     "derivedFrom",
@@ -51,11 +52,12 @@ ODPG_EDGE_DESCRIPTIONS: Dict[str, str] = {
     "measures": "A KPI measures an objective or outcome",
     "tracks": "A node tracks or provides KPI-related information",
     "dependsOn": "A node depends on another node",
-    "produce": "A node produces data, outputs, or services",
-    "Consumes": "A node consumes data, APIs, or outputs",
+    "produces": "A node produces data, outputs, or services",
+    "consumes": "A node consumes data, APIs, or outputs",
     "governedBy": "A node is governed by a policy or control",
     "ownedBy": "A node is owned by a person, team, or domain",
     "alignsWith": "A node aligns strategically or semantically with another node",
+    "alignWith": "A node aligns strategically or semantically with another node",
     "relatedTo": "A generic semantic relationship",
     "impacts": "A node impacts another node",
     "derivedFrom": "A node originates from another node",
@@ -79,11 +81,12 @@ _ODPG_LEGEND_COLOR_BY_LOWER: Dict[str, str] = {
     "measures": "#0d9488",
     "tracks": "#14b8a6",
     "dependson": "#6366f1",
-    "produce": "#059669",
+    "produces": "#059669",
     "consumes": "#a855f7",
     "governedby": "#db2777",
     "ownedby": "#ca8a04",
     "alignswith": "#f97316",
+    "alignwith": "#f97316",
     "relatedto": "#64748b",
     "impacts": "#dc2626",
     "derivedfrom": "#78716c",
@@ -91,6 +94,24 @@ _ODPG_LEGEND_COLOR_BY_LOWER: Dict[str, str] = {
     "monitors": "#0891b2",
     "identifies": "#475569",
 }
+
+DEFAULT_CONFIDENCE_VALUES: FrozenSet[str] = frozenset(("high", "medium", "low"))
+CORE_NODE_TYPES: FrozenSet[str] = frozenset(
+    (
+        "DataProduct",
+        "UseCase",
+        "BusinessObjective",
+        "KPI",
+        "Domain",
+        "Dataset",
+        "API",
+        "Policy",
+        "Workflow",
+        "Agent",
+        "Capability",
+        "StrategicOpportunity",
+    )
+)
 
 
 def load_graph(path: Optional[Union[Path, str]] = None) -> Dict[str, Any]:
@@ -117,80 +138,119 @@ def load_schema(path: Optional[Union[Path, str]] = None) -> Dict[str, Any]:
     return schema
 
 
-def _validate_graph_or_raise(graph: Dict[str, Any]) -> bool:
-    required_root_fields = ["schema", "version", "kind", "id", "name", "nodes", "edges"]
+def graph_payload(document: Dict[str, Any]) -> Dict[str, Any]:
+    """Return the ODPG graph container, accepting legacy flat examples."""
+    payload = document.get("graph")
+    return payload if isinstance(payload, dict) else document
 
-    for field in required_root_fields:
-        if field not in graph:
-            raise ValueError(f"Missing required root field: {field}")
 
-    if graph["kind"] != "DataProductGraph":
-        raise ValueError("Invalid kind. Expected: DataProductGraph")
+def graph_metadata(document: Dict[str, Any]) -> Dict[str, Any]:
+    """Return ODPG graph metadata."""
+    payload = graph_payload(document)
+    metadata = payload.get("metadata")
+    return metadata if isinstance(metadata, dict) else {}
 
-    node_ids = set()
 
-    for node in graph["nodes"]:
-        for field in ["id", "type"]:
-            if field not in node:
-                raise ValueError(f"Node is missing required field: {field}")
-        if "$ref" not in node and "ref" not in node:
-            raise ValueError("Node is missing required field: $ref")
-
-        if node["id"] in node_ids:
-            raise ValueError(f"Duplicate node id found: {node['id']}")
-
-        node_ids.add(node["id"])
-
-    for edge in graph["edges"]:
-        for field in ["from", "to", "type", "confidence"]:
-            if field not in edge:
-                raise ValueError(f"Edge is missing required field: {field}")
-
-        if edge["from"] not in node_ids:
-            raise ValueError(f"Edge source does not match any node id: {edge['from']}")
-
-        if edge["to"] not in node_ids:
-            raise ValueError(f"Edge target does not match any node id: {edge['to']}")
-
-    return True
+def localized_text(value: Any) -> str:
+    """Return a display string for ODPG localized values."""
+    if isinstance(value, dict):
+        return str(value.get("en") or next(iter(value.values()), ""))
+    return "" if value is None else str(value)
 
 
 def validate_graph(graph: Dict[str, Any]) -> ValidationResult:
-    """Validate an ODPG graph document against schema and structural checks."""
-    errors = []
-    try:
-        _validate_graph_or_raise(graph)
-    except ValueError as exc:
-        errors.append(str(exc))
+    """Validate an ODPG graph document using upstream toolkit semantics."""
+    errors: List[str] = []
+    warnings: List[str] = []
 
-    schema_data = load_schema()
-    jsonschema.Draft202012Validator.check_schema(schema_data)
-    validator = jsonschema.Draft202012Validator(schema_data)
-    schema_errors = sorted(
-        validator.iter_errors(_schema_graph(graph)), key=lambda error: list(error.path)
-    )
-    for error in schema_errors:
-        location = ".".join(str(part) for part in error.path) or "<root>"
-        errors.append(f"{location}: {error.message}")
+    for field in ("schema", "version", "kind"):
+        if field not in graph:
+            errors.append(f"Missing required root field: {field}")
 
-    kind = str(graph.get("kind", "DataProductGraph"))
-    return ValidationResult(valid=not errors, spec="odpg", kind=kind, errors=errors)
+    if graph.get("kind") != "Graph":
+        errors.append("Invalid root field kind: expected Graph")
 
+    payload = graph_payload(graph)
+    metadata = graph_metadata(graph)
+    nodes = payload.get("nodes")
+    edges = payload.get("edges")
 
-def _schema_graph(graph: Dict[str, Any]) -> Dict[str, Any]:
-    """Return graph copy normalized for ODPG schema validation."""
-    normalized = dict(graph)
-    normalized_nodes = []
-    for node in graph.get("nodes", []):
+    if "graph" in graph and not isinstance(graph.get("graph"), dict):
+        errors.append("Root field graph must be an object")
+
+    if not isinstance(nodes, list):
+        errors.append("Missing or invalid graph.nodes array")
+        nodes = []
+    if not isinstance(edges, list):
+        errors.append("Missing or invalid graph.edges array")
+        edges = []
+
+    for field in ("id", "name", "description"):
+        if field not in metadata:
+            errors.append(f"Missing required metadata field: graph.metadata.{field}")
+
+    node_ids: Set[str] = set()
+    for index, node in enumerate(nodes):
         if not isinstance(node, dict):
-            normalized_nodes.append(node)
+            errors.append(f"Node at index {index} must be an object")
             continue
-        normalized_node = dict(node)
-        if "$ref" not in normalized_node and "ref" in normalized_node:
-            normalized_node["$ref"] = normalized_node.pop("ref")
-        normalized_nodes.append(normalized_node)
-    normalized["nodes"] = normalized_nodes
-    return normalized
+        node_id = node.get("id")
+        node_type = node.get("type")
+        if not node_id:
+            errors.append(f"Node at index {index} is missing required field: id")
+        elif str(node_id) in node_ids:
+            errors.append(f"Duplicate node id found: {node_id}")
+        else:
+            node_ids.add(str(node_id))
+        if not node_type:
+            errors.append(f"Node {node_id or index} is missing required field: type")
+        elif str(node_type) not in CORE_NODE_TYPES:
+            warnings.append(
+                f"Node {node_id or index} uses non-core node type: {node_type}"
+            )
+        if not _node_ref(node):
+            errors.append(f"Node {node_id or index} is missing required field: $ref")
+
+    for index, edge in enumerate(edges):
+        if not isinstance(edge, dict):
+            errors.append(f"Edge at index {index} must be an object")
+            continue
+        source = str(edge.get("from") or "")
+        target = str(edge.get("to") or "")
+        edge_type = str(edge.get("type") or "")
+        confidence = str(edge.get("confidence") or "")
+        if not source:
+            errors.append(f"Edge at index {index} is missing required field: from")
+        elif source not in node_ids:
+            errors.append(f"Edge source does not match any node id: {source}")
+        if not target:
+            errors.append(f"Edge at index {index} is missing required field: to")
+        elif target not in node_ids:
+            errors.append(f"Edge target does not match any node id: {target}")
+        if not edge_type:
+            errors.append(f"Edge {source}->{target} is missing required field: type")
+        elif edge_type not in ODPG_CORE_EDGE_TYPES_ORDERED:
+            warnings.append(
+                f"Edge {source}->{target} uses non-core edge type: {edge_type}"
+            )
+        if not confidence:
+            errors.append(
+                f"Edge {source}->{target} is missing required field: confidence"
+            )
+        elif confidence not in DEFAULT_CONFIDENCE_VALUES:
+            errors.append(
+                f"Edge {source}->{target} has invalid confidence: {confidence}. "
+                "Use high, medium, or low."
+            )
+
+    kind = str(graph.get("kind", "Graph"))
+    return ValidationResult(
+        valid=not errors,
+        spec="odpg",
+        kind=kind,
+        errors=errors,
+        warnings=warnings,
+    )
 
 
 def _ref_to_display_name(ref: str) -> str:
@@ -212,7 +272,7 @@ def _edge_type_raw(edge: dict) -> str:
 def collect_relationship_types(graph: dict) -> List[str]:
     """Types present in the graph: ODPG spec order (camelCase literals), then other types A–Z."""
     seen_lower_to_raw: Dict[str, str] = {}
-    for edge in graph.get("edges") or []:
+    for edge in graph_payload(graph).get("edges") or []:
         raw = _edge_type_raw(edge)
         if not raw:
             continue
@@ -259,7 +319,7 @@ def _edge_line_dashed(type_display: str, edge: dict) -> bool:
 
 
 def _build_legend_relationship_html(relationship_types: List[str], graph: dict) -> str:
-    edges = graph.get("edges") or []
+    edges = graph_payload(graph).get("edges") or []
 
     def sample_edge(label_raw: str) -> dict:
         lo = label_raw.lower()
@@ -294,6 +354,8 @@ def _build_legend_relationship_html(relationship_types: List[str], graph: dict) 
 
 
 def build_html(graph: dict) -> str:
+    payload = graph_payload(graph)
+    metadata = graph_metadata(graph)
     relationship_types = collect_relationship_types(graph)
     odpg_supported_ordered_json = json.dumps(
         list(ODPG_CORE_EDGE_TYPES_ORDERED), ensure_ascii=False
@@ -301,15 +363,13 @@ def build_html(graph: dict) -> str:
     odpg_descriptions_json = json.dumps(
         ODPG_EDGE_DESCRIPTIONS_LOWER, ensure_ascii=False
     )
-    graph_title = graph.get("name", {}).get(
-        "en", graph.get("id", "ODPG Graph Explorer")
-    )
+    graph_title = localized_text(metadata.get("name")) or "ODPG Graph Explorer"
     graph_meta = (
-        f"{graph.get('id')} · ODPG {graph.get('version')} · {graph.get('kind')}"
+        f"{metadata.get('id')} · ODPG {graph.get('version')} · {graph.get('kind')}"
     )
 
     vis_nodes = []
-    for node in graph["nodes"]:
+    for node in payload["nodes"]:
         ref = _node_ref(node)
         display_name = _ref_to_display_name(ref)
         vis_nodes.append(
@@ -327,7 +387,7 @@ def build_html(graph: dict) -> str:
         )
 
     vis_edges = []
-    for edge in graph["edges"]:
+    for edge in payload["edges"]:
         display = _edge_relationship_label(edge)
         conf = str(edge["confidence"]).lower()
         ec = _edge_legend_color(display)
@@ -361,6 +421,194 @@ def build_html(graph: dict) -> str:
         odpg_supported_ordered_json=odpg_supported_ordered_json,
         odpg_descriptions_json=odpg_descriptions_json,
     )
+
+
+def build_adjacency(
+    document: Dict[str, Any],
+    reverse: bool = False,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Build edge adjacency lists for ODPG traversal."""
+    adjacency: DefaultDict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for edge in graph_payload(document).get("edges") or []:
+        if not isinstance(edge, dict):
+            continue
+        source = str(edge.get("from") or "")
+        target = str(edge.get("to") or "")
+        key = target if reverse else source
+        adjacency[key].append(edge)
+    return dict(adjacency)
+
+
+def summarize_graph(document: Dict[str, Any]) -> Dict[str, Any]:
+    """Summarize ODPG graph metadata, node/edge counts, types, and confidence."""
+    payload = graph_payload(document)
+    metadata = graph_metadata(document)
+    nodes = [n for n in payload.get("nodes") or [] if isinstance(n, dict)]
+    edges = [e for e in payload.get("edges") or [] if isinstance(e, dict)]
+
+    node_types: DefaultDict[str, int] = defaultdict(int)
+    edge_types: DefaultDict[str, int] = defaultdict(int)
+    confidence_values: DefaultDict[str, int] = defaultdict(int)
+
+    for node in nodes:
+        node_types[str(node.get("type") or "unknown")] += 1
+    for edge in edges:
+        edge_types[str(edge.get("type") or "unknown")] += 1
+        confidence_values[str(edge.get("confidence") or "unknown")] += 1
+
+    return {
+        "id": metadata.get("id"),
+        "name": localized_text(metadata.get("name")),
+        "description": localized_text(metadata.get("description")),
+        "nodeCount": len(nodes),
+        "edgeCount": len(edges),
+        "nodeTypes": dict(sorted(node_types.items())),
+        "edgeTypes": dict(sorted(edge_types.items())),
+        "confidenceValues": dict(sorted(confidence_values.items())),
+    }
+
+
+def traverse_graph(
+    document: Dict[str, Any],
+    start: str,
+    depth: int,
+    relationship: Optional[str] = None,
+    reverse: bool = False,
+) -> List[Dict[str, Any]]:
+    """Discover ODPG relationship paths from a node."""
+    adjacency = build_adjacency(document, reverse=reverse)
+    paths: List[Dict[str, Any]] = []
+    queue = deque([(start, [])])
+    seen = {(start, 0)}
+
+    while queue:
+        node_id, path = queue.popleft()
+        if len(path) >= depth:
+            continue
+        for edge in adjacency.get(node_id, []):
+            if relationship and edge.get("type") != relationship:
+                continue
+            next_node = str(edge.get("from") if reverse else edge.get("to"))
+            next_path = path + [edge]
+            paths.append(
+                {
+                    "start": start,
+                    "end": next_node,
+                    "depth": len(next_path),
+                    "relationships": [
+                        {
+                            "from": item.get("from"),
+                            "to": item.get("to"),
+                            "type": item.get("type"),
+                            "confidence": item.get("confidence"),
+                        }
+                        for item in next_path
+                    ],
+                }
+            )
+            state = (next_node, len(next_path))
+            if state not in seen:
+                seen.add(state)
+                queue.append((next_node, next_path))
+
+    return paths
+
+
+def analyze_graph(document: Dict[str, Any]) -> Dict[str, Any]:
+    """Run ODPG strategic and governance analysis checks."""
+    payload = graph_payload(document)
+    nodes = [n for n in payload.get("nodes") or [] if isinstance(n, dict)]
+    edges = [e for e in payload.get("edges") or [] if isinstance(e, dict)]
+    node_by_id = {str(node.get("id")): node for node in nodes if node.get("id")}
+
+    incoming: DefaultDict[str, List[Dict[str, Any]]] = defaultdict(list)
+    outgoing: DefaultDict[str, List[Dict[str, Any]]] = defaultdict(list)
+    for edge in edges:
+        outgoing[str(edge.get("from") or "")].append(edge)
+        incoming[str(edge.get("to") or "")].append(edge)
+
+    orphan_kpis = [
+        node_id
+        for node_id, node in node_by_id.items()
+        if node.get("type") == "KPI"
+        and not any(
+            edge.get("type") == "measures" for edge in outgoing.get(node_id, [])
+        )
+    ]
+    unsupported_objectives = [
+        node_id
+        for node_id, node in node_by_id.items()
+        if node.get("type") == "BusinessObjective"
+        and not any(
+            edge.get("type") in {"supports", "contributesTo", "alignsWith", "alignWith"}
+            for edge in incoming.get(node_id, [])
+        )
+    ]
+    ungoverned_assets = [
+        node_id
+        for node_id, node in node_by_id.items()
+        if node.get("type") in {"DataProduct", "API", "Dataset", "Workflow", "Agent"}
+        and not any(
+            edge.get("type") == "governedBy" for edge in outgoing.get(node_id, [])
+        )
+    ]
+    weak_relationships = [
+        {
+            "from": edge.get("from"),
+            "to": edge.get("to"),
+            "type": edge.get("type"),
+            "confidence": edge.get("confidence"),
+        }
+        for edge in edges
+        if edge.get("confidence") == "low"
+    ]
+    potential_opportunities = [
+        node_id
+        for node_id, node in node_by_id.items()
+        if node.get("type") == "UseCase"
+        and any(edge.get("type") == "uses" for edge in outgoing.get(node_id, []))
+        and not any(
+            edge.get("type") in {"supports", "contributesTo"}
+            for edge in outgoing.get(node_id, [])
+        )
+    ]
+
+    return {
+        "orphanKpis": orphan_kpis,
+        "unsupportedBusinessObjectives": unsupported_objectives,
+        "ungovernedAssets": ungoverned_assets,
+        "lowConfidenceRelationships": weak_relationships,
+        "useCasesWithoutStrategicContribution": potential_opportunities,
+    }
+
+
+def agent_context(document: Dict[str, Any], node_id: str, depth: int) -> Dict[str, Any]:
+    """Extract trusted ODPG graph context around a focus node."""
+    payload = graph_payload(document)
+    nodes = [n for n in payload.get("nodes") or [] if isinstance(n, dict)]
+    node_by_id = {str(node.get("id")): node for node in nodes if node.get("id")}
+    forward_paths = traverse_graph(document, node_id, depth)
+    reverse_paths = traverse_graph(document, node_id, depth, reverse=True)
+    related_ids = {node_id}
+    for path in forward_paths + reverse_paths:
+        related_ids.add(str(path.get("end")))
+
+    return {
+        "focusNode": node_by_id.get(node_id, {"id": node_id}),
+        "relatedNodes": [
+            node_by_id[node] for node in sorted(related_ids) if node in node_by_id
+        ],
+        "forwardPaths": forward_paths,
+        "reversePaths": reverse_paths,
+        "governanceSignals": [
+            path
+            for path in forward_paths
+            if any(
+                item.get("type") == "governedBy"
+                for item in path.get("relationships", [])
+            )
+        ],
+    }
 
 
 def load_graph_object_records(
@@ -475,28 +723,26 @@ def explain_graph(
     path: Union[str, Path] = "(memory)",
 ) -> str:
     """Render an ODPG graph summary for humans and AI agents."""
+    payload = graph_payload(graph)
+    metadata = graph_metadata(graph)
     relationship_types = collect_relationship_types(graph)
     node_types = sorted(
         {
             str(node.get("type"))
-            for node in graph.get("nodes", [])
+            for node in payload.get("nodes", [])
             if isinstance(node, dict) and node.get("type")
         }
     )
-    name = graph.get("name", {})
-    if isinstance(name, dict):
-        graph_name = name.get("en", "(unnamed)")
-    else:
-        graph_name = str(name or "(unnamed)")
+    graph_name = localized_text(metadata.get("name")) or "(unnamed)"
     lines = [
         f"File: {path}",
         f"Schema: {graph.get('schema', '(missing)')}",
         f"ODPG version: {graph.get('version', '(missing)')}",
-        f"Graph id: {graph.get('id', '(missing)')}",
+        f"Graph id: {metadata.get('id', '(missing)')}",
         f"Graph name: {graph_name}",
         f"Kind: {graph.get('kind', '(missing)')}",
-        f"Nodes: {len(graph.get('nodes', []))}",
-        f"Edges: {len(graph.get('edges', []))}",
+        f"Nodes: {len(payload.get('nodes', []))}",
+        f"Edges: {len(payload.get('edges', []))}",
     ]
     if node_types:
         lines.append(f"Node types: {', '.join(node_types)}")
@@ -504,7 +750,7 @@ def explain_graph(
         lines.append(f"Relationship types: {', '.join(relationship_types)}")
     refs = [
         _node_ref(node)
-        for node in graph.get("nodes", [])
+        for node in payload.get("nodes", [])
         if isinstance(node, dict) and _node_ref(node)
     ]
     if refs:

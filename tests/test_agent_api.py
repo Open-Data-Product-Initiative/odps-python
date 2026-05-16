@@ -85,7 +85,7 @@ def test_odpg_schema_validation_accepts_bundled_graph():
 
     assert result.valid is True
     assert result.spec == "odpg"
-    assert result.kind == "DataProductGraph"
+    assert result.kind == "Graph"
 
 
 def test_explain_graph_summarizes_agent_relevant_counts():
@@ -102,7 +102,7 @@ def test_resolve_references_finds_cross_spec_references():
     refs = resolve_references(graph)
 
     assert any(ref.ref_type == "node" for ref in refs)
-    assert any(ref.pointer.endswith("/nodes/0/$ref") for ref in refs)
+    assert any(ref.pointer.endswith("/graph/nodes/0/$ref") for ref in refs)
 
 
 def test_resources_are_listable_and_retrievable():

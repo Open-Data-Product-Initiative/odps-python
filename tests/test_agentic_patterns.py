@@ -74,6 +74,11 @@ EXPECTED_TOOLS = {
     "get_resource",
     "load_summary",
     "search_terms",
+    "search_graph_objects",
+    "summarize_graph",
+    "traverse_graph",
+    "analyze_graph",
+    "agent_context",
 }
 
 
@@ -228,7 +233,7 @@ class TestLoadSummary:
         from open_data_products import load_summary
 
         path = tmp_path / "p.yaml"
-        path.write_text("schema: odpg\nkind: DataProductGraph\n", encoding="utf-8")
+        path.write_text("schema: odpg\nkind: Graph\n", encoding="utf-8")
         summary = load_summary(path)
         assert "document" not in summary
         assert "body" not in summary

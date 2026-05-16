@@ -1,271 +1,276 @@
 {
-    "$schema": "https://json-schema.org/draft/2020-12/schema",
-    "$id": "https://opendataproducts.org/odpg-v1.0/schema/graph.json",
-    "title": "Open Data Product Graphs Schema",
-    "description": "Schema for Open Data Product Graphs (ODPG) v1.0 graph documents.",
-    "type": "object",
-    "additionalProperties": false,
-    "patternProperties": {
-      "^x-": {}
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ODPG schema",
+  "description": "This is the schema for ODPG v1.0.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "type": "string",
+      "description": "Defines the URL of Schema. Used often for validation purposes.",
+      "format": "uri"
     },
-    "required": [
-      "schema",
-      "version",
-      "kind",
-      "id",
-      "name",
-      "nodes",
-      "edges"
-    ],
-    "properties": {
-      "schema": {
-        "type": "string",
-        "format": "uri",
-        "description": "URL of the ODPG schema used for validation.",
-        "examples": [
-          "https://opendataproducts.org/odpg-v1.0/schema/odpg.yaml"
-        ]
+    "version": {
+      "type": "string",
+      "description": "Current ODPG version.",
+      "examples": [
+        "1.0",
+        "dev"
+      ]
+    },
+    "kind": {
+      "type": "string",
+      "description": "Type of graph specification document.",
+      "const": "Graph"
+    },
+    "graph": {
+      "type": "object",
+      "description": "Root element for the Open Data Product Graph.",
+      "$ref": "#/$defs/graph"
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "kind",
+    "graph"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "graph": {
+      "type": "object",
+      "description": "Container for graph metadata, nodes, and edges.",
+      "properties": {
+        "metadata": {
+          "type": "object",
+          "description": "Metadata describing the graph, its purpose, ownership, visibility, and discovery information.",
+          "$ref": "#/$defs/graphMetadata"
+        },
+        "nodes": {
+          "type": "array",
+          "description": "Array of node objects.",
+          "items": {
+            "$ref": "#/$defs/node"
+          }
+        },
+        "edges": {
+          "type": "array",
+          "description": "Array of edge objects.",
+          "items": {
+            "$ref": "#/$defs/edge"
+          }
+        }
       },
-      "version": {
-        "oneOf": [
-          {
+      "required": [
+        "metadata",
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "graphMetadata": {
+      "type": "object",
+      "description": "Metadata describing the graph.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the graph."
+        },
+        "name": {
+          "type": "object",
+          "description": "Human-readable graph name. Supports language-specific values.",
+          "$ref": "#/$defs/languages"
+        },
+        "description": {
+          "type": "object",
+          "description": "Human-readable description of what the graph represents. Supports language-specific values.",
+          "$ref": "#/$defs/languages"
+        },
+        "domain": {
+          "type": "object",
+          "description": "Business, industry, or subject domain covered by the graph. Supports language-specific values.",
+          "$ref": "#/$defs/languages"
+        },
+        "purpose": {
+          "type": "object",
+          "description": "Explanation of why the graph exists and how it should be used. Supports language-specific values.",
+          "$ref": "#/$defs/languages"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Keywords used for discovery, filtering, grouping, and search.",
+          "items": {
             "type": "string"
-          },
-          {
-            "type": "number"
           }
-        ],
-        "description": "Version of the ODPG specification.",
-        "examples": [
-          "1.0",
-          1.0
-        ]
-      },
-      "kind": {
-        "type": "string",
-        "const": "DataProductGraph",
-        "description": "Type of graph specification document."
-      },
-      "id": {
-        "type": "string",
-        "minLength": 1,
-        "description": "Unique identifier of the graph."
-      },
-      "name": {
-        "$ref": "#/$defs/LocalizedText",
-        "description": "Human-readable graph name."
-      },
-      "metadata": {
-        "$ref": "#/$defs/Metadata"
-      },
-      "nodes": {
-        "type": "array",
-        "description": "Collection of graph nodes.",
-        "minItems": 0,
-        "uniqueItems": true,
-        "items": {
-          "$ref": "#/$defs/Node"
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the graph.",
+          "enum": [
+            "draft",
+            "active",
+            "deprecated",
+            "archived"
+          ]
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Intended visibility of the graph.",
+          "enum": [
+            "public",
+            "internal",
+            "restricted",
+            "private"
+          ]
+        },
+        "owner": {
+          "type": "object",
+          "description": "Party responsible for the graph.",
+          "$ref": "#/$defs/owner"
         }
       },
-      "edges": {
-        "type": "array",
-        "description": "Collection of directional graph edges.",
-        "minItems": 0,
-        "items": {
-          "$ref": "#/$defs/Edge"
-        }
+      "required": [
+        "id",
+        "name",
+        "description"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": {}
       }
     },
-    "$defs": {
-      "LocalizedText": {
-        "type": "object",
-        "description": "Localized text values keyed by ISO 639-1 two-letter language code.",
-        "minProperties": 1,
-        "additionalProperties": false,
-        "patternProperties": {
-          "^[a-z]{2}$": {
-            "type": "string",
-            "minLength": 1
-          }
+    "owner": {
+      "type": "object",
+      "description": "Party responsible for the graph.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the owning person, team, or organization."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "Contact email for the owning party."
         }
       },
-      "Owner": {
-        "type": "object",
-        "additionalProperties": false,
-        "patternProperties": {
-          "^x-": {}
-        },
-        "required": [
-          "name"
-        ],
-        "properties": {
-          "name": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Name of the owning person, team, or organization."
-          },
-          "email": {
-            "type": "string",
-            "format": "email",
-            "description": "Contact email for the owning party."
-          }
-        }
-      },
-      "Metadata": {
-        "type": "object",
-        "description": "Optional metadata block for describing graph purpose, ownership, visibility, and discovery information.",
-        "additionalProperties": false,
-        "patternProperties": {
-          "^x-": {}
-        },
-        "properties": {
-          "name": {
-            "$ref": "#/$defs/LocalizedText"
-          },
-          "description": {
-            "$ref": "#/$defs/LocalizedText"
-          },
-          "domain": {
-            "$ref": "#/$defs/LocalizedText"
-          },
-          "purpose": {
-            "$ref": "#/$defs/LocalizedText"
-          },
-          "tags": {
-            "type": "array",
-            "description": "Keywords used for discovery, filtering, grouping, and search.",
-            "items": {
-              "type": "string"
-            }
-          },
-          "status": {
-            "type": "string",
-            "description": "Current status of the graph.",
-            "enum": [
-              "draft",
-              "active",
-              "deprecated",
-              "archived"
-            ]
-          },
-          "visibility": {
-            "type": "string",
-            "description": "Intended visibility of the graph.",
-            "enum": [
-              "public",
-              "internal",
-              "restricted",
-              "private"
-            ]
-          },
-          "owner": {
-            "$ref": "#/$defs/Owner"
-          }
-        }
-      },
-      "Node": {
-        "type": "object",
-        "description": "A distinct entity participating in the graph ecosystem.",
-        "additionalProperties": false,
-        "patternProperties": {
-          "^x-": {}
-        },
-        "required": [
-          "id",
-          "type",
-          "$ref"
-        ],
-        "properties": {
-          "id": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Unique identifier of the node."
-          },
-          "type": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Type of graph entity represented by the node.",
-            "examples": [
-              "DataProduct",
-              "UseCase",
-              "BusinessObjective",
-              "KPI",
-              "Domain",
-              "Dataset",
-              "API",
-              "Policy",
-              "Workflow",
-              "Agent",
-              "Capability",
-              "StrategicOpportunity"
-            ]
-          },
-          "$ref": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Path or URI to the referenced specification or resource."
-          }
-        }
-      },
-      "Edge": {
-        "type": "object",
-        "description": "A directional relationship connecting two graph nodes.",
-        "additionalProperties": false,
-        "patternProperties": {
-          "^x-": {}
-        },
-        "required": [
-          "from",
-          "to",
-          "type",
-          "confidence"
-        ],
-        "properties": {
-          "from": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Source node identifier."
-          },
-          "to": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Target node identifier."
-          },
-          "type": {
-            "type": "string",
-            "minLength": 1,
-            "description": "Relationship type.",
-            "examples": [
-              "uses",
-              "supports",
-              "contributesTo",
-              "measures",
-              "tracks",
-              "dependsOn",
-              "produces",
-              "consumes",
-              "governedBy",
-              "ownedBy",
-              "alignsWith",
-              "relatedTo",
-              "impacts",
-              "derivedFrom",
-              "exposes",
-              "monitors",
-              "identifies"
-            ]
-          },
-          "confidence": {
-            "type": "string",
-            "description": "Confidence level of the relationship.",
-            "enum": [
-              "high",
-              "medium",
-              "low"
-            ]
-          }
-        }
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": {}
       }
+    },
+    "node": {
+      "type": "object",
+      "description": "A distinct entity participating in the graph ecosystem.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the node."
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of graph entity represented by the node.",
+          "examples": [
+            "DataProduct",
+            "UseCase",
+            "BusinessObjective",
+            "KPI",
+            "Domain",
+            "Dataset",
+            "API",
+            "Policy",
+            "Workflow",
+            "Agent",
+            "Capability",
+            "StrategicOpportunity"
+          ]
+        },
+        "$ref": {
+          "type": "string",
+          "description": "Path or URI to the referenced specification or resource."
+        }
+      },
+      "required": [
+        "id",
+        "type",
+        "$ref"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "edge": {
+      "type": "object",
+      "description": "A directional relationship connecting two graph nodes.",
+      "properties": {
+        "from": {
+          "type": "string",
+          "description": "Source node identifier."
+        },
+        "to": {
+          "type": "string",
+          "description": "Target node identifier."
+        },
+        "type": {
+          "type": "string",
+          "description": "Relationship type.",
+          "examples": [
+            "uses",
+            "supports",
+            "contributesTo",
+            "measures",
+            "tracks",
+            "dependsOn",
+            "produces",
+            "consumes",
+            "governedBy",
+            "ownedBy",
+            "alignsWith",
+            "relatedTo",
+            "impacts",
+            "derivedFrom",
+            "exposes",
+            "monitors",
+            "identifies"
+          ]
+        },
+        "confidence": {
+          "type": "string",
+          "description": "Confidence level of the relationship.",
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ]
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "type",
+        "confidence"
+      ],
+      "additionalProperties": false,
+      "patternProperties": {
+        "^x-": {}
+      }
+    },
+    "languages": {
+      "type": "object",
+      "description": "Allows multilingual text fields where keys are ISO 639-1 language codes.",
+      "patternProperties": {
+        "^[a-z]{2}$": {
+          "type": "string",
+          "description": "Localized string value keyed by ISO 639-1 two-letter language code."
+        }
+      },
+      "minProperties": 1,
+      "additionalProperties": false
     }
   }
-  
+}

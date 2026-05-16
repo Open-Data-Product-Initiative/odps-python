@@ -32,6 +32,15 @@ from .. import (
     validate_document,
 )
 from ..odpc import search_objects as _search_objects, load_object_records
+from ..odpg import (
+    agent_context as _agent_context,
+    analyze_graph as _analyze_graph,
+    load_graph as _load_graph,
+    search_graph_objects as _search_graph_objects,
+    summarize_graph as _summarize_graph,
+    traverse_graph as _traverse_graph,
+    validate_graph as _validate_graph,
+)
 from ..odpv import search_vocabulary, load_vocabulary
 
 Handler = Callable[[Dict[str, Any]], Dict[str, Any]]
@@ -48,6 +57,7 @@ def _json_envelope(payload: Any) -> Dict[str, Any]:
 # --- handlers ---------------------------------------------------------------
 # No try/except here — the MCP server's handle() owns the error boundary.
 
+
 def _h_validate(args: Dict[str, Any]) -> Dict[str, Any]:
     result = validate_document(args["path"])
     return _json_envelope(result.to_dict())
@@ -62,7 +72,9 @@ def _h_resolve_refs(args: Dict[str, Any]) -> Dict[str, Any]:
     refs = resolve_references(args["path"])
     limit = int(args.get("limit", 100))
     payload = [ref.to_dict() for ref in refs[:limit]]
-    return _json_envelope({"count": len(refs), "returned": len(payload), "refs": payload})
+    return _json_envelope(
+        {"count": len(refs), "returned": len(payload), "refs": payload}
+    )
 
 
 def _h_list_resources(args: Dict[str, Any]) -> Dict[str, Any]:
@@ -89,6 +101,50 @@ def _h_search_objects(args: Dict[str, Any]) -> Dict[str, Any]:
     return _json_envelope(results)
 
 
+def _h_search_graph_objects(args: Dict[str, Any]) -> Dict[str, Any]:
+    results = _search_graph_objects(args["query"])
+    return _json_envelope(results[: int(args.get("limit", 10))])
+
+
+def _h_summarize_graph(args: Dict[str, Any]) -> Dict[str, Any]:
+    return _json_envelope(_summarize_graph(_load_graph(args["path"])))
+
+
+def _h_traverse_graph(args: Dict[str, Any]) -> Dict[str, Any]:
+    graph = _load_graph(args["path"])
+    result = _validate_graph(graph)
+    if not result.valid:
+        return _json_envelope(result.to_dict())
+    paths = _traverse_graph(
+        graph,
+        args["start"],
+        int(args.get("depth", 2)),
+        relationship=args.get("relationship"),
+        reverse=bool(args.get("reverse", False)),
+    )
+    return _json_envelope({"start": args["start"], "paths": paths})
+
+
+def _h_analyze_graph(args: Dict[str, Any]) -> Dict[str, Any]:
+    graph = _load_graph(args["path"])
+    result = _validate_graph(graph)
+    if not result.valid:
+        return _json_envelope(result.to_dict())
+    return _json_envelope(
+        {"warnings": result.warnings, "analysis": _analyze_graph(graph)}
+    )
+
+
+def _h_agent_context(args: Dict[str, Any]) -> Dict[str, Any]:
+    graph = _load_graph(args["path"])
+    result = _validate_graph(graph)
+    if not result.valid:
+        return _json_envelope(result.to_dict())
+    payload = _agent_context(graph, args["node"], int(args.get("depth", 2)))
+    payload["warnings"] = result.warnings
+    return _json_envelope(payload)
+
+
 # --- registry ---------------------------------------------------------------
 
 _PATH_PROP = {
@@ -96,6 +152,14 @@ _PATH_PROP = {
     "description": "Filesystem path to an ODPS, ODPC, ODPG, or ODPV document (YAML or JSON).",
 }
 _QUERY_PROP = {"type": "string", "description": "Free-text search query."}
+_NODE_PROP = {"type": "string", "description": "ODPG node id."}
+_DEPTH_PROP = {
+    "type": "integer",
+    "description": "Maximum graph traversal depth.",
+    "minimum": 1,
+    "maximum": 20,
+    "default": 2,
+}
 _LIMIT_PROP = {
     "type": "integer",
     "description": "Maximum number of results to return.",
@@ -204,6 +268,83 @@ TOOLS: List[Dict[str, Any]] = [
             "additionalProperties": False,
         },
         "handler": _h_search_objects,
+    },
+    {
+        "name": "search_graph_objects",
+        "description": "Search bundled ODPG graph guidance records by keyword.",
+        "class": "safe",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"query": _QUERY_PROP, "limit": _LIMIT_PROP},
+            "required": ["query"],
+            "additionalProperties": False,
+        },
+        "handler": _h_search_graph_objects,
+    },
+    {
+        "name": "summarize_graph",
+        "description": "Summarize ODPG graph metadata, nodes, edges, types, and confidence values.",
+        "class": "safe",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"path": _PATH_PROP},
+            "required": ["path"],
+            "additionalProperties": False,
+        },
+        "handler": _h_summarize_graph,
+    },
+    {
+        "name": "traverse_graph",
+        "description": "Discover ODPG relationship paths from a focus node.",
+        "class": "safe",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "path": _PATH_PROP,
+                "start": _NODE_PROP,
+                "depth": _DEPTH_PROP,
+                "relationship": {
+                    "type": "string",
+                    "description": "Optional relationship type filter.",
+                },
+                "reverse": {
+                    "type": "boolean",
+                    "description": "Traverse incoming relationships.",
+                    "default": False,
+                },
+            },
+            "required": ["path", "start"],
+            "additionalProperties": False,
+        },
+        "handler": _h_traverse_graph,
+    },
+    {
+        "name": "analyze_graph",
+        "description": "Run ODPG strategic and governance analysis checks.",
+        "class": "safe",
+        "inputSchema": {
+            "type": "object",
+            "properties": {"path": _PATH_PROP},
+            "required": ["path"],
+            "additionalProperties": False,
+        },
+        "handler": _h_analyze_graph,
+    },
+    {
+        "name": "agent_context",
+        "description": "Extract trusted ODPG context around a focus node.",
+        "class": "safe",
+        "inputSchema": {
+            "type": "object",
+            "properties": {
+                "path": _PATH_PROP,
+                "node": _NODE_PROP,
+                "depth": _DEPTH_PROP,
+            },
+            "required": ["path", "node"],
+            "additionalProperties": False,
+        },
+        "handler": _h_agent_context,
     },
 ]
 
