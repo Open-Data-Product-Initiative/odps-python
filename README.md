@@ -576,7 +576,10 @@ We extend our gratitude to the following:
 
 ## Contributing
 
-Contributions welcome! Please read CONTRIBUTING.md for guidelines.
+Contributions are welcome. Please read CONTRIBUTING.md for guidelines, browse
+the [open issues](https://github.com/Open-Data-Product-Initiative/odp-agent-sdk/issues),
+and consider helping with new features, bug fixes, examples, documentation, or
+agent-facing workflow improvements.
 
 ## License
 
