@@ -539,7 +539,9 @@ python3 apps/vocabulary_finder/cli.py "governance policy risk" --limit 5 --json
 
 We extend our gratitude to the following:
 
-**[Open Data Product Initiative Team](https://opendataproducts.org/)** - Special thanks to the team at opendataproducts.org for their work in creating and maintaining the Open Data Product Specification (ODPS). Their vision of standardizing data product descriptions and enabling better data discovery and interoperability has made this library possible. The ODPS v4.1 specification represents years of collaborative effort from industry experts, data practitioners, and open source contributors who are driving the future of data standardization.
+**[Open Data Product Initiative Team](https://opendataproducts.org/)** - Special thanks to the team at opendataproducts.org for creating and maintaining the emerging Open Data Product standards family, including the Open Data Product Specification (ODPS), Open Data Product Catalog (ODPC), Open Data Product Graphs (ODPG), and Open Data Product Vocabulary (ODPV). Their vision of standardizing data product descriptions, catalogs, graphs, and shared vocabulary has made this SDK possible. These specifications represent years of collaborative effort from industry experts, data practitioners, and open source contributors who are driving the future of data standardization.
+
+**[Chris Howard / Kitard](https://github.com/Kitard)** - Special thanks to Chris Howard from Accenture for creating the original `odps-python` library. His foundational work made it possible to extend the project into the broader Open Data Products SDK and agent toolkit.
 
 **Python Community** - For the exceptional ecosystem of libraries and tools that power this implementation, including PyYAML, jsonschema, and the countless other packages that make Python development a joy.
 
