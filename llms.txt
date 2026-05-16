@@ -1,0 +1,120 @@
+# Open Data Products Python SDK for AI Agents
+
+This repository contains the AI-agent-first Python SDK for the
+OpenDataProducts.org standards family: ODPS, ODPC, ODPG, and ODPV.
+
+Use this file as the operational handoff for AI agents that need to use the SDK
+or its MCP server. Use `AGENTS.md` only when contributing code to this
+repository.
+
+## Primary Agent Surfaces
+
+- Python package: `open_data_products`
+- Unified CLI: `open-data-products`
+- MCP server command: `open-data-products serve`
+- ARWS manifest command: `open-data-products manifest --json`
+- Codex project MCP config: `.codex/config.toml`
+- Claude Code project MCP config: `.mcp.json`
+- Main human README: `README.md`
+- API reference: `docs/API.md`
+
+## Install Before MCP Launch
+
+The project-level MCP configs are intentionally PATH-based and contain no local
+absolute paths. Before an agent host starts the MCP server, install the package
+in the active environment:
+
+```bash
+pip install -e .
+```
+
+or install the published package so `open-data-products` is available on PATH.
+
+## Core Python API
+
+Use the top-level API when the input spec is unknown:
+
+- `load_document(path)`
+- `detect_document(document)`
+- `validate_document(document_or_path)`
+- `explain_document(document_or_path)`
+- `resolve_references(document_or_path)`
+- `load_summary(path)`
+- `list_resources()`
+- `get_resource(id)`
+
+These functions support ODPS, ODPC, ODPG, and ODPV documents through one
+consistent agent-facing surface.
+
+## CLI Commands
+
+Use these commands for machine-readable workflows:
+
+- `open-data-products validate <path> --json`
+- `open-data-products explain <path> --json`
+- `open-data-products refs <path> --json`
+- `open-data-products resources --json`
+- `open-data-products resources --id <resource-id> --json`
+- `open-data-products summary <path>`
+- `open-data-products manifest --json`
+- `open-data-products serve`
+
+ODPG graph reasoning commands:
+
+- `open-data-products odpg-summary <graph.yaml>`
+- `open-data-products odpg-traverse <graph.yaml> --start <node-id> --depth 2`
+- `open-data-products odpg-analyze <graph.yaml>`
+- `open-data-products odpg-agent-context <graph.yaml> --node <node-id> --depth 2`
+
+## MCP Tools
+
+The MCP server exposes safe, read-only tools:
+
+- `validate_document`
+- `explain_document`
+- `resolve_references`
+- `list_resources`
+- `get_resource`
+- `load_summary`
+- `search_terms`
+- `search_objects`
+- `search_graph_objects`
+- `summarize_graph`
+- `traverse_graph`
+- `analyze_graph`
+- `agent_context`
+
+Tool responses should stay compact and structured. Do not return full document
+bodies from MCP handlers; use `load_summary` for lightweight artifact
+references.
+
+## Bundled Resources
+
+Agents can discover bundled resources with `list_resources()` or the
+`list_resources` MCP tool. Important resource ids include:
+
+- `odps.schema.json`
+- `odpc.schema.yaml`
+- `odpc.schema.json`
+- `odpc.objects`
+- `odpg.schema.yaml`
+- `odpg.schema.json`
+- `odpg.graph`
+- `odpg.objects`
+- `odpv.vocabulary`
+- `odpv.terms`
+
+## Spec Namespaces
+
+- `open_data_products.odps`: ODPS data product models and validation helpers
+- `open_data_products.odpc`: ODPC catalog helpers and object retrieval records
+- `open_data_products.odpg`: ODPG graph validation, traversal, analysis, and context
+- `open_data_products.odpv`: ODPV vocabulary loading, validation, search, and artifacts
+
+## Safety
+
+- The MCP surface is safe/read-only.
+- Do not include local absolute paths in project MCP configs.
+- Do not include secrets in config, examples, tests, or fixtures.
+- Use logical resource ids where possible and let the resource registry resolve
+  package paths.

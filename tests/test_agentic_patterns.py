@@ -162,6 +162,37 @@ class TestCodexProjectConfig:
         assert "/" not in server["command"]
 
 
+class TestClaudeCodeProjectConfig:
+    def test_claude_code_mcp_config_points_to_sdk_server(self):
+        path = REPO_ROOT / ".mcp.json"
+
+        config = json.loads(path.read_text(encoding="utf-8"))
+        server = config["mcpServers"]["open_data_products"]
+
+        assert server["command"] == "open-data-products"
+        assert server["args"] == ["serve"]
+        assert "/" not in server["command"]
+
+
+class TestLlmsText:
+    def test_llms_txt_exists_and_routes_agents_to_sdk_surfaces(self):
+        path = REPO_ROOT / "llms.txt"
+
+        content = path.read_text(encoding="utf-8")
+
+        for expected in (
+            "open-data-products serve",
+            "open-data-products manifest --json",
+            ".codex/config.toml",
+            ".mcp.json",
+            "validate_document",
+            "traverse_graph",
+            "load_summary",
+            "AGENTS.md",
+        ):
+            assert expected in content
+
+
 # --- Agent-Readable Web (ARWS) ----------------------------------------------
 # https://agenticpatterns.veso.ai/arws
 
