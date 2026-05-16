@@ -75,6 +75,41 @@ commands manually:
 open-data-products serve
 ```
 
+Project-level MCP setup is included for Codex and Claude Code so the SDK can be
+used as an MCP tool surface directly from the repository:
+
+- **Codex**: `.codex/config.toml` registers the SDK server as
+  `open_data_products`.
+
+  ```toml
+  [mcp_servers.open_data_products]
+  command = "open-data-products"
+  args = ["serve"]
+  enabled = true
+  startup_timeout_sec = 10
+  tool_timeout_sec = 60
+  ```
+
+- **Claude Code**: `.mcp.json` registers the same server using Claude Code's
+  project-scoped MCP configuration.
+
+  ```json
+  {
+    "mcpServers": {
+      "open_data_products": {
+        "command": "open-data-products",
+        "args": ["serve"]
+      }
+    }
+  }
+  ```
+
+Both configs are intentionally portable: they use `open-data-products serve`,
+contain no local absolute paths, and assume `open-data-products` is available
+on `PATH`. Install the package in the active environment first with
+`pip install -e .` or install the published package before expecting an agent
+host to launch the server.
+
 The same tool set (`validate_document`, `explain_document`,
 `resolve_references`, `list_resources`, `get_resource`, `load_summary`,
 `search_terms`, `search_objects`, `search_graph_objects`, `summarize_graph`,
