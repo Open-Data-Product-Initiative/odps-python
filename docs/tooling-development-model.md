@@ -6,6 +6,8 @@ The SDK is built with an AI Agent First mindset. It is not only a developer libr
 
 In practice, it becomes the toolkit for creating, validating, explaining, traversing, and manipulating Open Data Products standards across ODPS, ODPC, ODPG, and ODPV.
 
+![Open Data Products SDK at a glance](glance.png)
+
 This matters because the ODPS family is no longer only one specification.
 
 - ODPS defines the data product itself.
