@@ -167,6 +167,7 @@ This README is intentionally a short landing page. Use the focused references
 below for implementation details:
 
 - [API reference](docs/API.md): ODPS models, validators, serialization, and examples.
+- [Tooling development model](docs/tooling-development-model.md): human-facing explanation of how spec-level scripts mature into consolidated SDK capabilities.
 - [Example scripts](examples/): runnable ODPS examples, including v4.1 strategy and MCP access examples.
 - [Sample apps](apps/README.md): independent CLIs built on top of the SDK.
 - [Agent handoff](llms.txt): compact machine-readable routing for AI agents.
