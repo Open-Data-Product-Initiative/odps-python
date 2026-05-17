@@ -104,6 +104,8 @@ The `llms.txt` files have an especially important role. They are not only local 
 
 This means an AI agent does not need to start in the right repository. It might enter through ODPS because it is validating a data product, through ODPV because it is checking terminology, through ODPC because it is working with catalog objects, through ODPG because it is analyzing relationships, or through the SDK because it needs tooling. From any of these entry points, the agent should still be able to discover the other parts of the standards family.
 
+![Open Data Products family llms.txt discovery flow](llms.png)
+
 In that sense, `llms.txt` files become part of the family-level context layer in the eyes of AI agents. They help the agent understand where it is, what the current specification does, how it relates to the rest of the family, and when the consolidated SDK should be used instead of local scripts.
 
 These surfaces are intentionally lightweight. They are not the same thing as the SDK.
@@ -119,6 +121,8 @@ Then the scripts mature through release candidate review, maintainer feedback, e
 After that, the SDK consolidates the useful parts. It adapts the logic into the `open_data_products` package, applies namespaces, creates shared result models, adds tests, exposes CLI commands, and makes the functions available to MCP tools and agent workflows.
 
 Finally, lessons from the SDK can flow back to the specification repositories. If the SDK reveals unclear schema design, missing examples, weak validation rules, or confusing terminology, those findings should improve the specs.
+
+![Open Data Products SDK feedback loop](feedback.png)
 
 This creates a useful feedback loop. The specifications create the first tooling. The SDK consolidates the tooling. The consolidated tooling then helps improve the specifications.
 
